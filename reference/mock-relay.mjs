@@ -42,6 +42,13 @@ function preservedEvidenceRefs(workspace) {
   ].filter(Boolean));
 }
 
+function discoveryObservationRefs(workspace, batchObservationIds = new Set()) {
+  return new Set([
+    ...(workspace.discovery_observations ?? []).map(o => o?.observation_id),
+    ...batchObservationIds
+  ].filter(Boolean));
+}
+
 function relaySequenceFromWorkspace(workspace) {
   const match = /^relay-(\d+)$/.exec(String(workspace?.workspace_version ?? ''));
   return match ? Number(match[1]) : 0;
@@ -110,11 +117,17 @@ function appendAdjudication(workspace, result) {
   if (result.status !== 'REJECTED') normalizeCandidateRecords(workspace, result.interpretation ?? {});
 }
 
-function validateObservationBasis(workspace, observation) {
+function validateObservationBasis(workspace, observation, batchObservationIds = new Set()) {
   const result = validateDiscoveryObservation(observation);
   const evidence = preservedEvidenceRefs(workspace);
-  const invalid = (observation.supporting_refs ?? []).filter(ref => !evidence.has(ref));
-  if (invalid.length) result.errors.push(`supporting_refs must resolve to preserved source/testimony evidence: ${invalid.join(', ')}`);
+  const invalidSupport = (observation.supporting_refs ?? []).filter(ref => !evidence.has(ref));
+  if (invalidSupport.length) result.errors.push(`supporting_refs must resolve to preserved source/testimony evidence: ${invalidSupport.join(', ')}`);
+
+  const observationRefs = discoveryObservationRefs(workspace, batchObservationIds);
+  const clusterAllowed = new Set([...evidence, ...observationRefs]);
+  const invalidCluster = (observation.cluster_refs ?? []).filter(ref => ref === observation.observation_id || !clusterAllowed.has(ref));
+  if (invalidCluster.length) result.errors.push(`cluster_refs must resolve to preserved evidence or discovery observations other than self: ${invalidCluster.join(', ')}`);
+
   result.valid = result.errors.length === 0;
   return result;
 }
@@ -131,9 +144,9 @@ function turnReceiptId(turnId) {
 
 export function createMockRelay(workspace = {}, options = {}) {
   const normalized = ensureWorkspace(workspace);
-  const sequence = Number.isInteger(options.sequence) && options.sequence >= 0
-    ? options.sequence
-    : relaySequenceFromWorkspace(normalized);
+  const recoveredSequence = relaySequenceFromWorkspace(normalized);
+  const requestedSequence = Number.isInteger(options.sequence) && options.sequence >= 0 ? options.sequence : recoveredSequence;
+  const sequence = Math.max(recoveredSequence, requestedSequence);
   return {
     relay_id: options.relay_id ?? `relay-${normalized.workspace_id ?? 'workspace'}`,
     sequence,
@@ -216,9 +229,10 @@ export function processRelayTurn(relayInput, turn, options = {}) {
   // Canon Discovery: observations must be grounded in preserved source/testimony evidence, never industry assumptions.
   if ((turn.discovery_observations ?? []).length) {
     const observations = replaceTurnAlias(turn.discovery_observations, testimonyId);
+    const batchIds = new Set(observations.map(o => o?.observation_id).filter(Boolean));
     const errors = [];
     for (const observation of observations) {
-      const checked = validateObservationBasis(relay.workspace, observation);
+      const checked = validateObservationBasis(relay.workspace, observation, batchIds);
       if (!checked.valid) errors.push(`${observation.observation_id ?? '(unidentified)'}: ${checked.errors.join('; ')}`);
     }
     if (errors.length) {

@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/optical-lift/atlas-ledger-foundry/spec/schema/session-context.schema.json",
+  "title": "Foundry Session Context v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "session_id",
+    "workspace_id",
+    "workspace_version",
+    "protocol_version",
+    "governing_order_version",
+    "generated_at",
+    "workspace_status",
+    "provisional_subject",
+    "provisional_field",
+    "boundary_status",
+    "orientation",
+    "blockers",
+    "established_projection",
+    "unresolved_projection",
+    "evidence_refs",
+    "next_question",
+    "allowed_operations",
+    "omissions_notice"
+  ],
+  "properties": {
+    "session_id": {"type": "string", "minLength": 1},
+    "workspace_id": {"type": "string", "minLength": 1},
+    "workspace_version": {"type": "string", "minLength": 1},
+    "protocol_version": {"type": "string", "const": "0.1"},
+    "governing_order_version": {"type": "string", "minLength": 1},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "workspace_status": {"type": "string"},
+    "provisional_subject": {"type": "object"},
+    "provisional_field": {"type": "string"},
+    "boundary_status": {"type": "string"},
+    "orientation": {
+      "type": "object",
+      "required": ["north_star", "core_rules"],
+      "properties": {
+        "north_star": {"type": "string"},
+        "core_rules": {"type": "array", "items": {"type": "string"}, "minItems": 1}
+      }
+    },
+    "blockers": {"type": "array", "items": {"type": "object"}},
+    "established_projection": {"type": "array", "items": {"type": "object"}},
+    "unresolved_projection": {"type": "array", "items": {"type": "object"}},
+    "evidence_refs": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "next_question": {
+      "type": ["object", "null"],
+      "properties": {
+        "question": {"type": "string"},
+        "reason": {"type": "string"},
+        "priority_class": {"type": "string"},
+        "related_refs": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+      }
+    },
+    "alternate_questions": {"type": "array", "items": {"type": "object"}},
+    "allowed_operations": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "omissions_notice": {
+      "type": "object",
+      "required": ["packet_is_partial", "message"],
+      "properties": {
+        "packet_is_partial": {"type": "boolean"},
+        "message": {"type": "string"},
+        "omitted_categories": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  }
+}

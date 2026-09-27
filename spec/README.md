@@ -1,6 +1,6 @@
 # Atlas Ledger Foundry Specification
 
-This directory defines the carrier-independent state, operation, inquiry, readiness, and interchange contracts for Foundry.
+This directory defines the carrier-independent state, operation, inquiry, readiness, session, and interchange contracts for Foundry.
 
 ## Governing specifications
 
@@ -8,6 +8,7 @@ This directory defines the carrier-independent state, operation, inquiry, readin
 - [`FOUNDRY_SERVICE_OPERATIONS_V0.1.md`](FOUNDRY_SERVICE_OPERATIONS_V0.1.md) — lawful connected-service command surface and authority boundaries.
 - [`QUESTION_SELECTION_V0.1.md`](QUESTION_SELECTION_V0.1.md) — how Foundry chooses the next structurally useful question instead of running a questionnaire.
 - [`READINESS_ENGINE_V0.1.md`](READINESS_ENGINE_V0.1.md) — deterministic readiness gates, blockers, warnings, and seal preconditions.
+- [`SESSION_CONTRACT_V0.1.md`](SESSION_CONTRACT_V0.1.md) — what a fresh carrier receives, how context is bounded, and how one conversational turn lawfully returns to Foundry.
 - [`LEDGER_EXCHANGE_V0.1.md`](LEDGER_EXCHANGE_V0.1.md) — sealed-candidate interchange toward Atlas admission.
 - [`FOUNDRY_TOOL_SURFACE_V0.1.json`](FOUNDRY_TOOL_SURFACE_V0.1.json) — provider-neutral operation inventory and forbidden generic surfaces.
 
@@ -20,16 +21,30 @@ This directory defines the carrier-independent state, operation, inquiry, readin
 - [`schema/ledger-candidate.schema.json`](schema/ledger-candidate.schema.json)
 - [`schema/operation-envelope.schema.json`](schema/operation-envelope.schema.json)
 - [`schema/operation-result.schema.json`](schema/operation-result.schema.json)
+- [`schema/session-context.schema.json`](schema/session-context.schema.json) — bounded resume packet for a fresh carrier.
+- [`schema/session-turn.schema.json`](schema/session-turn.schema.json) — one human turn plus bounded proposed Foundry operations.
 
 ## Executable reference
 
-The storage-free reference implementation lives under [`../reference/`](../reference/). It exists so inquiry and readiness behavior can be exercised before persistence, MCP, OAuth, or native Atlas implementation.
+The storage-free reference implementation lives under [`../reference/`](../reference/). It exists so inquiry, readiness, and session-projection behavior can be exercised before persistence, MCP, OAuth, or native Atlas implementation.
 
 Question selection asks **what should Foundry learn next?**
 
 Readiness asks **is the field sufficiently reconciled to seal?**
 
+The session contract asks **what does this carrier need right now, and nothing more?**
+
 These are related but distinct judgments.
+
+## Session rule
+
+A carrier receives a governed projection of the workspace, not unrestricted workspace custody.
+
+The normal loop is:
+
+`workspace → session context → human testimony → bounded operations → updated workspace`
+
+A carrier must not return a whole replacement workspace after every turn.
 
 ## Service rule
 

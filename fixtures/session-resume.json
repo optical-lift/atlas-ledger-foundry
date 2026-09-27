@@ -1,0 +1,37 @@
+{
+  "fixture": "session-resume-v0.1",
+  "purpose": "Prove that a fresh carrier receives the governing orientation, the highest-priority unresolved issue, related evidence references, and a bounded—not whole-workspace—projection.",
+  "workspace": {
+    "workspace_id": "W300",
+    "workspace_version": "checkpoint-12",
+    "protocol_version": "0.1",
+    "status": "RECONCILIATION",
+    "provisional_subject": {"label": "Community Program", "subject_ref": "E001"},
+    "provisional_field": "Receiving organizations, team travel, activities, and approval authority",
+    "boundary_status": "PROVISIONAL",
+    "sources": [
+      {"source_id": "S300", "record_type": "source", "source_kind": "conversation", "label": "Current principal conversation", "status": "PROCESSED"}
+    ],
+    "testimony": [
+      {"testimony_id": "T300", "record_type": "testimony", "content": "I usually approve them, but Ricardo can do it when they're in Argentina.", "representation": "EXACT", "source_refs": ["S300"]}
+    ],
+    "assertions": [
+      {"assertion_id": "A300", "stage": "NEEDS_CLARIFICATION", "kind": "authority_relation", "materiality": "HIGH", "basis_refs": ["T300"], "interpretation_note": "Approval authority may be conditional on location, delegation, or stage of work."},
+      {"assertion_id": "A301", "stage": "ESTABLISHED", "kind": "entity_identity", "materiality": "HIGH", "basis_refs": ["T300"], "content": {"entity": "Ricardo", "kind": "person"}},
+      {"assertion_id": "A399", "stage": "ESTABLISHED", "kind": "historical_detail", "materiality": "LOW", "basis_refs": ["S300"], "content": {"note": "An unrelated retired asset existed years ago."}}
+    ],
+    "unknowns": [],
+    "contradictions": [],
+    "closure": [],
+    "ledger_candidates": [],
+    "acceptance_cases": []
+  },
+  "expected": {
+    "workspace_id": "W300",
+    "primary_related_ref": "A300",
+    "established_projection_includes": ["A301"],
+    "established_projection_excludes": ["A399"],
+    "packet_is_partial": true,
+    "requires_orientation": true
+  }
+}

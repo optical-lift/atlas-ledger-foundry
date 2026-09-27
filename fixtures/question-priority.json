@@ -1,0 +1,42 @@
+{
+  "fixture": "question-priority-v0.1",
+  "purpose": "Synthetic workspace proving that blocking contradiction outranks topology and low-materiality history.",
+  "workspace": {
+    "protocol_version": "0.1",
+    "boundary_status": "PROVISIONAL",
+    "contradictions": [
+      {
+        "contradiction_id": "C001",
+        "status": "OPEN",
+        "blocking": true,
+        "description": "Two current accounts disagree about who can approve a receiving organization.",
+        "record_refs": ["A010", "A011"]
+      }
+    ],
+    "unknowns": [
+      {
+        "unknown_id": "U001",
+        "status": "OPEN",
+        "blocking": false,
+        "materiality": "LOW",
+        "description": "Exact historical date of a prior location change."
+      }
+    ],
+    "ledger_candidates": [
+      {
+        "ledger_candidate_id": "L001",
+        "label": "Related Program",
+        "status": "UNRESOLVED",
+        "blocking": true
+      }
+    ],
+    "assertions": [],
+    "closure": [],
+    "acceptance_cases": []
+  },
+  "expected": {
+    "primary_ref": "C001",
+    "priority_class": "P1",
+    "readiness": false
+  }
+}

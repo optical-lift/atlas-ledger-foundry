@@ -1,0 +1,48 @@
+{
+  "fixture": "readiness-pass-v0.1",
+  "purpose": "Synthetic workspace showing that explicit non-blocking unknowns may survive readiness.",
+  "workspace": {
+    "protocol_version": "0.1",
+    "boundary_status": "SUFFICIENTLY_BOUNDED",
+    "contradictions": [],
+    "unknowns": [
+      {
+        "unknown_id": "U100",
+        "status": "OPEN",
+        "blocking": false,
+        "materiality": "LOW",
+        "description": "Exact historical purchase date of a retired asset."
+      }
+    ],
+    "ledger_candidates": [],
+    "assertions": [
+      {
+        "assertion_id": "A100",
+        "stage": "ESTABLISHED",
+        "kind": "authority_relation",
+        "materiality": "HIGH",
+        "basis_refs": ["T100"]
+      }
+    ],
+    "closure": [
+      {
+        "closure_id": "CL100",
+        "label": "People with current decision authority",
+        "status": "CLOSED_COMPLETE",
+        "materiality": "MATERIAL"
+      }
+    ],
+    "acceptance_cases": [
+      {
+        "case_id": "AC100",
+        "scenario": "Primary decision-maker is unavailable.",
+        "status": "PASS"
+      }
+    ]
+  },
+  "expected": {
+    "readiness": true,
+    "blocking_count": 0,
+    "non_blocking_unknown_count": 1
+  }
+}

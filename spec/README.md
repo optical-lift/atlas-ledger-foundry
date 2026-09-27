@@ -1,23 +1,35 @@
 # Atlas Ledger Foundry Specification
 
-This directory defines the carrier-independent state, operation, and interchange contracts for Foundry.
+This directory defines the carrier-independent state, operation, inquiry, readiness, and interchange contracts for Foundry.
 
 ## Governing specifications
 
-- [`FOUNDRY_WORKSPACE_V0.1.md`](FOUNDRY_WORKSPACE_V0.1.md) — what durable pre-Ledger state contains, its authority boundary, lifecycle, provenance, readiness, and seal semantics.
-- [`FOUNDRY_SERVICE_OPERATIONS_V0.1.md`](FOUNDRY_SERVICE_OPERATIONS_V0.1.md) — the lawful connected-service command surface and its authority boundaries.
-- [`LEDGER_EXCHANGE_V0.1.md`](LEDGER_EXCHANGE_V0.1.md) — how a sealed Ledger candidate moves between Foundry carriers and toward Atlas admission without flattening provenance, uncertainty, closure, or topology.
-- [`FOUNDRY_TOOL_SURFACE_V0.1.json`](FOUNDRY_TOOL_SURFACE_V0.1.json) — machine-readable inventory of the provider-neutral Foundry operations and forbidden generic surfaces.
+- [`FOUNDRY_WORKSPACE_V0.1.md`](FOUNDRY_WORKSPACE_V0.1.md) — durable pre-Ledger state, lifecycle, provenance, readiness, and seal semantics.
+- [`FOUNDRY_SERVICE_OPERATIONS_V0.1.md`](FOUNDRY_SERVICE_OPERATIONS_V0.1.md) — lawful connected-service command surface and authority boundaries.
+- [`QUESTION_SELECTION_V0.1.md`](QUESTION_SELECTION_V0.1.md) — how Foundry chooses the next structurally useful question instead of running a questionnaire.
+- [`READINESS_ENGINE_V0.1.md`](READINESS_ENGINE_V0.1.md) — deterministic readiness gates, blockers, warnings, and seal preconditions.
+- [`LEDGER_EXCHANGE_V0.1.md`](LEDGER_EXCHANGE_V0.1.md) — sealed-candidate interchange toward Atlas admission.
+- [`FOUNDRY_TOOL_SURFACE_V0.1.json`](FOUNDRY_TOOL_SURFACE_V0.1.json) — provider-neutral operation inventory and forbidden generic surfaces.
 
 ## Machine schemas
 
-- [`schema/workspace.schema.json`](schema/workspace.schema.json) — workspace envelope and durable record collections.
-- [`schema/testimony.schema.json`](schema/testimony.schema.json) — raw/recoverable testimony record.
-- [`schema/assertion.schema.json`](schema/assertion.schema.json) — structured candidate/reconciled assertion with provenance and stage.
-- [`schema/closure.schema.json`](schema/closure.schema.json) — explicit domain/collection closure state.
-- [`schema/ledger-candidate.schema.json`](schema/ledger-candidate.schema.json) — unresolved or classified possible Ledger discovered during Foundry.
-- [`schema/operation-envelope.schema.json`](schema/operation-envelope.schema.json) — attributable request envelope for a service operation.
-- [`schema/operation-result.schema.json`](schema/operation-result.schema.json) — governed result envelope, including blockers and confirmation requirements.
+- [`schema/workspace.schema.json`](schema/workspace.schema.json)
+- [`schema/testimony.schema.json`](schema/testimony.schema.json)
+- [`schema/assertion.schema.json`](schema/assertion.schema.json)
+- [`schema/closure.schema.json`](schema/closure.schema.json)
+- [`schema/ledger-candidate.schema.json`](schema/ledger-candidate.schema.json)
+- [`schema/operation-envelope.schema.json`](schema/operation-envelope.schema.json)
+- [`schema/operation-result.schema.json`](schema/operation-result.schema.json)
+
+## Executable reference
+
+The storage-free reference implementation lives under [`../reference/`](../reference/). It exists so inquiry and readiness behavior can be exercised before persistence, MCP, OAuth, or native Atlas implementation.
+
+Question selection asks **what should Foundry learn next?**
+
+Readiness asks **is the field sufficiently reconciled to seal?**
+
+These are related but distinct judgments.
 
 ## Service rule
 

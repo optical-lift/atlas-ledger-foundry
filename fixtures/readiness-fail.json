@@ -1,0 +1,49 @@
+{
+  "fixture": "readiness-fail-v0.1",
+  "purpose": "Synthetic workspace proving that boundary, closure, contradiction, topology, and acceptance gates remain blocking.",
+  "workspace": {
+    "protocol_version": "0.1",
+    "boundary_status": "PROVISIONAL",
+    "contradictions": [
+      {
+        "contradiction_id": "C200",
+        "status": "OPEN",
+        "blocking": true,
+        "description": "Decision authority is disputed.",
+        "record_refs": ["A200", "A201"]
+      }
+    ],
+    "unknowns": [],
+    "ledger_candidates": [
+      {
+        "ledger_candidate_id": "L200",
+        "label": "Related Program",
+        "status": "UNRESOLVED",
+        "blocking": true
+      }
+    ],
+    "assertions": [],
+    "closure": [
+      {
+        "closure_id": "CL200",
+        "label": "Receiving organizations",
+        "status": "NOT_YET_RECONCILED",
+        "materiality": "MATERIAL"
+      }
+    ],
+    "acceptance_cases": [
+      {
+        "case_id": "AC200",
+        "scenario": "A scheduled host becomes unavailable after travel is committed.",
+        "status": "NOT_RUN"
+      }
+    ]
+  },
+  "expected_blocker_codes": [
+    "BOUNDARY_UNRESOLVED",
+    "BLOCKING_CONTRADICTION",
+    "BLOCKING_TOPOLOGY",
+    "MATERIAL_CLOSURE_OPEN",
+    "ACCEPTANCE_NOT_PASSING"
+  ]
+}

@@ -33,16 +33,11 @@ Question candidates may be generated from:
 
 ## 3. Priority classes
 
-The engine evaluates candidates in this order unless a lower class clearly blocks interpretation of a higher one.
+Priority class governs before any within-class weight is applied.
 
 ### P0 — Safety / authority / reality corruption risk
 
-Examples:
-
-- conflicting claims about who has authority to commit the subject;
-- uncertainty that could cause one Ledger to overwrite another field;
-- identity ambiguity that could merge two distinct real things;
-- a material assertion marked established without valid provenance.
+Examples include authority collision, identity merge risk, Ledger-boundary collision, or a materially established assertion without valid provenance.
 
 ### P1 — Blocking contradictions and unknowns
 
@@ -50,21 +45,15 @@ Resolve conditions explicitly marked blocking or critical.
 
 ### P2 — Ledger topology
 
-Resolve whether a discovered field is:
+Resolve whether a discovered field is a separate Ledger, part of the current Ledger, related external reality, not materially relevant, or unresolved.
 
-- a separate Ledger;
-- part of the current Ledger;
-- related external reality;
-- not materially relevant;
-- unresolved.
+### P3 — Authority, responsibility, custody, verification, identity / continuity
 
-### P3 — Authority, responsibility, custody, verification
-
-Questions that distinguish who may observe, act, decide, commit, verify, override, or carry responsibility.
+Questions that distinguish who may observe, act, decide, commit, verify, override, carry responsibility, or continue as the same thing.
 
 ### P4 — Consequential state transitions
 
-Questions that establish what event changes state, under what conditions, with what exception, and what becomes possible/required afterward.
+Questions that establish what event changes state, under what conditions, with what exception, and what becomes possible or required afterward.
 
 ### P5 — Closure
 
@@ -78,11 +67,11 @@ Questions that establish what is true now when the current condition affects dec
 
 Useful but non-blocking clarification, naming, description, or historical detail.
 
-## 4. Ranking score
+## 4. Deterministic ranking
 
-A reference implementation may use a deterministic score. The exact weights are implementation details, but the semantic order must remain stable.
+The engine first compares priority class. Only candidates in the same class are ranked by additional structural weight.
 
-Recommended components:
+Recommended within-class components:
 
 - `blocking`: +100
 - `critical materiality`: +80
@@ -99,7 +88,9 @@ Recommended components:
 - `already answered by preserved evidence`: −1000
 - `duplicate semantic question`: −500
 
-The engine should rank deterministically when inputs are identical.
+The implementation may encode priority class as non-overlapping numeric bands, but a P2 candidate must never outrank an eligible P1 candidate merely because its within-class weights are larger.
+
+Identical workspace inputs should produce identical rankings.
 
 ## 5. Question construction rules
 

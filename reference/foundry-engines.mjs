@@ -16,7 +16,11 @@ function assertionBasis(a) { return a?.basis_refs ?? a?.provenance?.basis_refs ?
 function assertionNote(a) { return a?.interpretation_note ?? a?.provenance?.interpretation_note ?? null; }
 function closureState(c) { return c?.state ?? c?.status ?? 'NOT_YET_RECONCILED'; }
 function closureLabel(c) { return c?.scope_label ?? c?.label ?? c?.domain ?? c?.scope_key ?? c?.closure_id ?? 'this domain'; }
-function closureMaterial(c) { return c?.material ?? (c?.materiality === 'MATERIAL') ?? !!c?.blocking; }
+function closureMaterial(c) {
+  if (typeof c?.material === 'boolean') return c.material;
+  if (c?.materiality === 'MATERIAL') return true;
+  return !!c?.blocking;
+}
 function closureCollection(c) { return c?.scope_kind === 'COLLECTION' || c?.collection === true; }
 function inverseChecked(c) { return c?.inverse_completeness_checked ?? c?.inverse_checked ?? false; }
 function ledgerClassification(l) { return l?.classification ?? l?.status ?? 'UNRESOLVED'; }

@@ -31,12 +31,12 @@ function coreOperator(candidate) {
   const t = text(candidate);
   if (candidate.type === 'narrative' || uncertainty === 'open_field') return 'NARRATE';
   if (candidate.type === 'gate' || uncertainty === 'applicability' || candidate.branch_gate === true) return 'GATE';
-  if (candidate.type === 'contradiction' || candidate.type === 'topology' || uncertainty === 'competing_models') return 'DISCRIMINATE';
+  if (candidate.type === 'contradiction' || candidate.type === 'topology' || candidate.type === 'identity' || uncertainty === 'competing_models') return 'DISCRIMINATE';
   if (candidate.type === 'provenance' || uncertainty === 'source' || uncertainty === 'provenance') return 'TRACE';
   if (candidate.type === 'completeness' || uncertainty === 'completeness' || candidate.inverse_check_required === true) return 'INVERT';
   if (candidate.type === 'verification' || uncertainty === 'confirmation' || candidate.needs_confirmation === true) return 'VERIFY';
   if (candidate.type === 'function' || uncertainty === 'function' || candidate.needs_function_definition === true) return 'DEFINE_BY_FUNCTION';
-  if (candidate.type === 'boundary' || uncertainty === 'scope' || candidate.needs_scope === true) return 'BOUND';
+  if (candidate.type === 'boundary' || candidate.type === 'authority' || uncertainty === 'scope' || candidate.needs_scope === true) return 'BOUND';
   if (candidate.type === 'transition' || uncertainty === 'trigger' || candidate.needs_trigger === true) return 'TRIGGER';
   if (candidate.type === 'exception' || uncertainty === 'exception' || candidate.needs_exception === true) return 'EXCEPTION';
   if (candidate.type === 'counterfactual' || candidate.type === 'acceptance' || uncertainty === 'assumption') return 'COUNTERFACTUAL';

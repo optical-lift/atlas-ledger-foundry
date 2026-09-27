@@ -6,7 +6,8 @@ This directory defines the carrier-independent state, operation, inquiry, readin
 
 - [`FOUNDRY_WORKSPACE_V0.1.md`](FOUNDRY_WORKSPACE_V0.1.md) — durable pre-Ledger state, lifecycle, provenance, readiness, and seal semantics.
 - [`FOUNDRY_SERVICE_OPERATIONS_V0.1.md`](FOUNDRY_SERVICE_OPERATIONS_V0.1.md) — lawful connected-service command surface and authority boundaries.
-- [`QUESTION_SELECTION_V0.1.md`](QUESTION_SELECTION_V0.1.md) — how Foundry chooses the next structurally useful question instead of running a questionnaire.
+- [`QUESTION_SELECTION_V0.1.md`](QUESTION_SELECTION_V0.1.md) — how Foundry chooses the next structurally useful gap instead of running a questionnaire.
+- [`QUESTION_OPERATORS_V0.1.md`](QUESTION_OPERATORS_V0.1.md) — the operator library used to choose the question shape that best resolves the selected structural gap.
 - [`READINESS_ENGINE_V0.1.md`](READINESS_ENGINE_V0.1.md) — deterministic readiness gates, blockers, warnings, and seal preconditions.
 - [`SESSION_CONTRACT_V0.1.md`](SESSION_CONTRACT_V0.1.md) — what a fresh carrier receives, how context is bounded, and how one conversational turn lawfully returns to Foundry.
 - [`LEDGER_EXCHANGE_V0.1.md`](LEDGER_EXCHANGE_V0.1.md) — sealed-candidate interchange toward Atlas admission.
@@ -21,20 +22,31 @@ This directory defines the carrier-independent state, operation, inquiry, readin
 - [`schema/ledger-candidate.schema.json`](schema/ledger-candidate.schema.json)
 - [`schema/operation-envelope.schema.json`](schema/operation-envelope.schema.json)
 - [`schema/operation-result.schema.json`](schema/operation-result.schema.json)
-- [`schema/session-context.schema.json`](schema/session-context.schema.json) — bounded resume packet for a fresh carrier.
+- [`schema/question-operator.schema.json`](schema/question-operator.schema.json) — machine contract for the selected inquiry operator and its structural job.
+- [`schema/session-context.schema.json`](schema/session-context.schema.json) — bounded resume packet for a fresh carrier, including selected question-operator metadata.
 - [`schema/session-turn.schema.json`](schema/session-turn.schema.json) — one human turn plus bounded proposed Foundry operations.
 
 ## Executable reference
 
-The storage-free reference implementation lives under [`../reference/`](../reference/). It exists so inquiry, readiness, and session-projection behavior can be exercised before persistence, MCP, OAuth, or native Atlas implementation.
+The storage-free reference implementation lives under [`../reference/`](../reference/). It exists so inquiry, question-operator, readiness, and session-projection behavior can be exercised before persistence, MCP, OAuth, or native Atlas implementation.
 
 Question selection asks **what should Foundry learn next?**
+
+Question operators ask **what kind of question will extract the most useful structure from that gap?**
 
 Readiness asks **is the field sufficiently reconciled to seal?**
 
 The session contract asks **what does this carrier need right now, and nothing more?**
 
 These are related but distinct judgments.
+
+## Inquiry rule
+
+The governing inquiry chain is:
+
+`highest-value gap → question operator → relevant evidence neighborhood → one ordinary-language question → preserved testimony → bounded operations → residual gap`
+
+Foundry must use `GATE` before unnecessary branches, `DISCRIMINATE` when models compete, `INVERT` to test completeness from reality back toward records, and `SIGNPOST` to learn when an established fact should be re-evaluated.
 
 ## Session rule
 

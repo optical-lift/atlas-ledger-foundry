@@ -22,6 +22,7 @@ This directory defines the carrier-independent state, operation, inquiry, readin
 - [`schema/ledger-candidate.schema.json`](schema/ledger-candidate.schema.json)
 - [`schema/operation-envelope.schema.json`](schema/operation-envelope.schema.json)
 - [`schema/operation-result.schema.json`](schema/operation-result.schema.json)
+- [`schema/inquiry-hint.schema.json`](schema/inquiry-hint.schema.json) — durable hints describing the kind of unresolved structure, evidence standard, and maintenance work without encoding an answer.
 - [`schema/question-operator.schema.json`](schema/question-operator.schema.json) — machine contract for the selected inquiry operator and its structural job.
 - [`schema/session-context.schema.json`](schema/session-context.schema.json) — bounded resume packet for a fresh carrier, including selected question-operator metadata.
 - [`schema/session-turn.schema.json`](schema/session-turn.schema.json) — one human turn plus bounded proposed Foundry operations.

@@ -19,15 +19,23 @@ const CORE_RULES = [
   'Faithful incompleteness is superior to invented completeness.'
 ];
 
-function byId(records = []) {
-  return new Map(records.filter(Boolean).map(r => [
-    r.assertion_id ?? r.testimony_id ?? r.source_id ?? r.unknown_id ?? r.contradiction_id ?? r.closure_id ?? r.ledger_candidate_id ?? r.case_id,
-    r
-  ]));
-}
-
 function stableId(record) {
   return record?.assertion_id ?? record?.testimony_id ?? record?.source_id ?? record?.unknown_id ?? record?.contradiction_id ?? record?.closure_id ?? record?.ledger_candidate_id ?? record?.case_id ?? null;
+}
+
+function recordBasisRefs(record) {
+  return [...new Set([
+    ...(record?.basis_refs ?? []),
+    ...(record?.provenance?.basis_refs ?? []),
+    ...(record?.record_refs ?? []),
+    ...(record?.source_refs ?? []),
+    ...(record?.testimony_refs ?? []),
+    ...(record?.inverse_check_basis_refs ?? [])
+  ])];
+}
+
+function byId(records = []) {
+  return new Map(records.filter(Boolean).map(r => [stableId(r), r]).filter(([id]) => id));
 }
 
 export function collectRelevantRecords(workspace, relatedRefs = []) {
@@ -51,15 +59,7 @@ export function collectRelevantRecords(workspace, relatedRefs = []) {
     const record = index.get(id);
     if (!record) continue;
     selected.set(id, record);
-
-    for (const ref of [
-      ...(record.basis_refs ?? []),
-      ...(record.record_refs ?? []),
-      ...(record.source_refs ?? []),
-      ...(record.testimony_refs ?? [])
-    ]) {
-      if (!selected.has(ref)) queue.push(ref);
-    }
+    for (const ref of recordBasisRefs(record)) if (!selected.has(ref)) queue.push(ref);
   }
 
   return [...selected.values()];
@@ -76,20 +76,19 @@ export function buildSessionContext(workspace, options = {}) {
     .filter(a => {
       if (!relatedRefs.length) return ['HIGH', 'CRITICAL'].includes(a.materiality);
       const id = stableId(a);
-      return relatedRefs.includes(id) || (a.basis_refs ?? []).some(r => relatedRefs.includes(r));
+      return relatedRefs.includes(id) || recordBasisRefs(a).some(r => relatedRefs.includes(r));
     })
     .map(a => ({ ...a }));
 
   const unresolvedProjection = neighborhood.filter(r => {
-    if (r.status === 'OPEN' || r.status === 'UNRESOLVED' || r.status === 'KNOWN_INCOMPLETE' || r.status === 'NOT_YET_RECONCILED') return true;
+    const closureState = r.state ?? r.status;
+    if (closureState === 'OPEN' || closureState === 'UNRESOLVED' || closureState === 'KNOWN_INCOMPLETE' || closureState === 'NOT_YET_RECONCILED') return true;
     if (r.stage === 'NEEDS_CLARIFICATION' || r.stage === 'CONFLICTED') return true;
     return false;
   });
 
   const evidenceRefs = [...new Set(neighborhood.flatMap(r => [
-    ...(r.basis_refs ?? []),
-    ...(r.source_refs ?? []),
-    ...(r.testimony_refs ?? []),
+    ...recordBasisRefs(r),
     ['source', 'testimony'].includes(r.record_type) ? stableId(r) : null
   ]).filter(Boolean))];
 

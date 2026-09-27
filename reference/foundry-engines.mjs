@@ -2,6 +2,7 @@
 // Pure, storage-free reference logic. No database access and no Atlas Reality writes.
 
 const MATERIALITY = { LOW: 5, MEDIUM: 20, HIGH: 50, CRITICAL: 80 };
+const PRIORITY_BASE = { P0: 1000, P1: 900, P2: 800, P3: 700, P4: 600, P5: 500, P6: 400, P7: 300 };
 
 function ref(id, type, reason, priorityClass, extra = {}) {
   return { id, type, reason, priorityClass, ...extra };
@@ -45,13 +46,17 @@ export function collectQuestionCandidates(workspace) {
       const authority = /authority|responsib|custody|jurisdiction|permission/.test(kind);
       const identity = /identity|continuity|same_as|different_from/.test(kind);
       const transition = /event|transition|state|rule|condition|exception/.test(kind);
-      out.push(ref(a.assertion_id, authority ? 'authority' : identity ? 'identity' : transition ? 'transition' : 'assertion',
+      out.push(ref(
+        a.assertion_id,
+        authority ? 'authority' : identity ? 'identity' : transition ? 'transition' : 'assertion',
         a.interpretation_note ?? `Clarify ${a.kind ?? 'assertion'}.`,
-        authority ? 'P3' : identity ? 'P3' : transition ? 'P4' : 'P7', {
+        authority ? 'P3' : identity ? 'P3' : transition ? 'P4' : 'P7',
+        {
           blocking: a.stage === 'CONFLICTED',
           materiality: a.materiality ?? 'HIGH',
           related_refs: a.basis_refs ?? []
-        }));
+        }
+      ));
     }
   }
 
@@ -79,7 +84,8 @@ export function collectQuestionCandidates(workspace) {
 }
 
 export function scoreQuestionCandidate(c) {
-  let score = 0;
+  // Priority class governs. Additive factors only rank candidates within a class.
+  let score = PRIORITY_BASE[c.priorityClass] ?? 0;
   if (c.blocking) score += 100;
   score += MATERIALITY[c.materiality] ?? 0;
   if (c.type === 'topology') score += 45;

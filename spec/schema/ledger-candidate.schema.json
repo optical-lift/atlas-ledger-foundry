@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/optical-lift/atlas-ledger-foundry/spec/schema/ledger-candidate.schema.json",
+  "title": "Atlas Foundry Ledger Candidate v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "ledger_candidate_id",
+    "workspace_id",
+    "working_name",
+    "classification",
+    "introduced_at"
+  ],
+  "properties": {
+    "ledger_candidate_id": {"type": "string", "minLength": 1},
+    "workspace_id": {"type": "string", "minLength": 1},
+    "working_name": {"type": "string", "minLength": 1},
+    "subject_ref": {"type": ["string", "null"]},
+    "field_description": {"type": ["string", "null"]},
+    "relationship_to_current_field": {"type": ["string", "null"]},
+    "classification": {
+      "type": "string",
+      "enum": ["UNRESOLVED", "SEPARATE_LEDGER", "PART_OF_CURRENT_LEDGER", "RELATED_EXTERNAL_REALITY", "NOT_MATERIAL", "RETIRED"]
+    },
+    "boundary_status": {
+      "type": "string",
+      "enum": ["UNRESOLVED", "PROVISIONAL", "SUFFICIENTLY_BOUNDED"]
+    },
+    "authority_distinction": {"type": ["string", "null"]},
+    "overlap_risk": {"type": ["string", "null"]},
+    "basis_refs": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    },
+    "open_questions": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    },
+    "blocking": {"type": "boolean", "default": false},
+    "introduced_at": {"type": "string", "format": "date-time"},
+    "resolved_at": {"type": ["string", "null"], "format": "date-time"},
+    "supersedes_candidate_id": {"type": ["string", "null"]}
+  }
+}

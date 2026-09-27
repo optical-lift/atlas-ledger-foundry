@@ -1,0 +1,43 @@
+{
+  "fixture": "mock-relay-cross-session-v0.1",
+  "purpose": "A fresh carrier continues canon-governed discovery from durable Relay state without industry normalization or conversational memory.",
+  "opening": {
+    "workspace_id": "W-RELAY",
+    "provisional_field": "landscaping company",
+    "expected_operator": "NARRATE"
+  },
+  "turn": {
+    "turn_id": "001",
+    "human_input": "Once a job is ready, the crew lead takes over. Anything above the normal spend limit comes back to me for approval.",
+    "discovery_observations": [
+      {
+        "observation_id": "O-CUSTODY",
+        "discovery_lens": "CUSTODY",
+        "description": "Responsibility moves to an execution bearer after a readiness condition.",
+        "supporting_refs": ["$turn_testimony"],
+        "industry_assumption": false,
+        "materiality": "HIGH"
+      },
+      {
+        "observation_id": "O-BOUNDARY",
+        "discovery_lens": "BOUNDARY",
+        "description": "Approval authority changes at a threshold.",
+        "supporting_refs": ["$turn_testimony"],
+        "industry_assumption": false,
+        "materiality": "HIGH"
+      }
+    ]
+  },
+  "expected_after_turn": {
+    "testimony_preserved": true,
+    "discovery_status": "ACCEPTED",
+    "primary_operator": "BOUND",
+    "primary_discovery_lens": "BOUNDARY",
+    "industry_assumption": false
+  },
+  "fresh_session": {
+    "must_recover_supporting_testimony": true,
+    "must_recover_same_material_gap": true,
+    "must_not_require_prior_chat_memory": true
+  }
+}

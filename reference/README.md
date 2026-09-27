@@ -11,11 +11,13 @@ It is not the production Foundry Service. It exists so governing behavior can be
 - `discovery-grammar.mjs` — validation and candidate generation for evidence-backed canon discovery observations.
 - `answer-processing.mjs` — cases, interpretation validation, conservative-vs-truth-changing adjudication gates, dependency impact, and structural-delta construction.
 - `session-context.mjs` — bounded resume-packet projection for a fresh carrier.
+- `mock-relay.mjs` — in-memory orchestration of resume, testimony custody, Canon Discovery, answer adjudication, structural delta, and fresh-session continuation.
 - `self-test.mjs` — priority and readiness checks.
 - `operator-self-test.mjs` — every question operator plus bidirectional completeness, repair, and signpost behavior.
 - `discovery-self-test.mjs` — cross-domain invariance, evidence requirements, industry non-authority, and discovery-gap integration.
 - `answer-self-test.mjs` — authority scoping, explicit new unknowns, dependency reopening, signals, and no-change behavior.
 - `session-self-test.mjs` — bounded session context and operator-aware resume behavior.
+- `relay-self-test.mjs` — end-to-end cross-session Relay behavior, testimony-before-interpretation, discovery provenance, stale/authority boundaries, and idempotent turn replay.
 
 ## Run locally
 
@@ -27,6 +29,7 @@ node reference/operator-self-test.mjs
 node reference/discovery-self-test.mjs
 node reference/answer-self-test.mjs
 node reference/session-self-test.mjs
+node reference/relay-self-test.mjs
 ```
 
 No database, network access, package install, or Atlas credentials are required.
@@ -37,4 +40,6 @@ A later implementation may be more sophisticated, but it must preserve the gover
 
 The reference implementation is deliberately conservative. It does not infer absent material domains, silently establish assertions, decide readiness from record count, let a carrier force a truth-changing disposition, or hand a carrier the entire workspace merely for convenience.
 
-An AI may help generate evidence-backed discovery observations, candidate gaps, natural-language phrasing, interpretation plans, discrepancies, signals, and proposed dispositions. The service retains an inspectable layer for discovery provenance, priority, operator selection, answer adjudication, dependency impact, readiness, context selection, and authority gates.
+An AI may help generate evidence-backed discovery observations, candidate gaps, natural-language phrasing, interpretation plans, discrepancies, signals, and proposed dispositions. The service retains an inspectable layer for discovery provenance, priority, operator selection, answer adjudication, dependency impact, readiness, context selection, authority gates, and cross-session custody.
+
+The Mock Relay proves orchestration only. It does not create a database, expose generic CRUD, write canonical Atlas Reality, or substitute for the eventual connected Foundry service.

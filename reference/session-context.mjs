@@ -96,8 +96,12 @@ export function buildSessionContext(workspace, options = {}) {
     return false;
   });
 
+  const preservedEvidence = new Set([
+    ...(workspace.sources ?? []).map(s => s.source_id),
+    ...(workspace.testimony ?? []).map(t => t.testimony_id)
+  ].filter(Boolean));
   const evidenceRefs = [...new Set(neighborhood.flatMap(r => [
-    ...recordBasisRefs(r),
+    ...recordBasisRefs(r).filter(ref => preservedEvidence.has(ref)),
     ['source', 'testimony'].includes(r.record_type) ? stableId(r) : null
   ]).filter(Boolean))];
 

@@ -4,26 +4,7 @@
   "title": "Foundry Session Context v0.1",
   "type": "object",
   "additionalProperties": false,
-  "required": [
-    "session_id",
-    "workspace_id",
-    "workspace_version",
-    "protocol_version",
-    "governing_order_version",
-    "generated_at",
-    "workspace_status",
-    "provisional_subject",
-    "provisional_field",
-    "boundary_status",
-    "orientation",
-    "blockers",
-    "established_projection",
-    "unresolved_projection",
-    "evidence_refs",
-    "next_question",
-    "allowed_operations",
-    "omissions_notice"
-  ],
+  "required": ["session_id","workspace_id","workspace_version","protocol_version","governing_order_version","generated_at","workspace_status","provisional_subject","provisional_field","boundary_status","orientation","blockers","established_projection","unresolved_projection","evidence_refs","next_question","allowed_operations","omissions_notice"],
   "properties": {
     "session_id": {"type": "string", "minLength": 1},
     "workspace_id": {"type": "string", "minLength": 1},
@@ -53,7 +34,13 @@
         "question": {"type": "string"},
         "reason": {"type": "string"},
         "priority_class": {"type": "string"},
-        "related_refs": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+        "related_refs": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "expected_structural_gain": {"type": "string"},
+        "operator": {"type": "string", "enum": ["NARRATE","GATE","DISCRIMINATE","TRACE","INVERT","VERIFY","DEFINE_BY_FUNCTION","BOUND","TRIGGER","EXCEPTION","COUNTERFACTUAL","SIGNPOST","CLOSE","ESCALATE"]},
+        "operator_modifiers": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "wrapped_operator": {"type": ["string", "null"]},
+        "operator_reason": {"type": "string"},
+        "next_operator_candidates": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
       }
     },
     "alternate_questions": {"type": "array", "items": {"type": "object"}},

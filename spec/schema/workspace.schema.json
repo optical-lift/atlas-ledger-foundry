@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/optical-lift/atlas-ledger-foundry/spec/schema/workspace.schema.json",
+  "title": "Atlas Foundry Workspace v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "workspace_id",
+    "protocol_version",
+    "owner_principal_id",
+    "status",
+    "created_at",
+    "updated_at",
+    "provisional_subject",
+    "provisional_field",
+    "boundary_status",
+    "sources",
+    "testimony",
+    "assertions",
+    "unknowns",
+    "contradictions",
+    "closure",
+    "ledger_candidates",
+    "acceptance_cases"
+  ],
+  "properties": {
+    "workspace_id": {"type": "string", "minLength": 1},
+    "protocol_version": {"type": "string", "const": "0.1"},
+    "owner_principal_id": {"type": "string", "minLength": 1},
+    "status": {
+      "type": "string",
+      "enum": ["DISCOVERY", "RECONCILIATION", "CLOSURE", "ACCEPTANCE", "READY_TO_SEAL", "SEALED", "SUPERSEDED", "ABANDONED"]
+    },
+    "created_at": {"type": "string", "format": "date-time"},
+    "updated_at": {"type": "string", "format": "date-time"},
+    "as_of": {"type": ["string", "null"]},
+    "provisional_subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "subject_ref"],
+      "properties": {
+        "label": {"type": "string", "minLength": 1},
+        "subject_ref": {"type": ["string", "null"]},
+        "subject_kind": {"type": ["string", "null"]}
+      }
+    },
+    "provisional_field": {"type": "string", "minLength": 1},
+    "included_scope": {"type": "array", "items": {"type": "string"}},
+    "excluded_scope": {"type": "array", "items": {"type": "string"}},
+    "boundary_status": {
+      "type": "string",
+      "enum": ["UNRESOLVED", "PROVISIONAL", "SUFFICIENTLY_BOUNDED"]
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["source_id", "source_kind", "label", "status"],
+        "properties": {
+          "source_id": {"type": "string", "minLength": 1},
+          "source_kind": {"type": "string", "minLength": 1},
+          "label": {"type": "string", "minLength": 1},
+          "locator": {"type": ["string", "null"]},
+          "effective_period": {"type": ["string", "null"]},
+          "status": {"type": "string", "enum": ["AVAILABLE", "PROCESSED", "PARTIAL", "UNAVAILABLE", "RETIRED"]}
+        }
+      }
+    },
+    "testimony": {
+      "type": "array",
+      "items": {"$ref": "testimony.schema.json"}
+    },
+    "assertions": {
+      "type": "array",
+      "items": {"$ref": "assertion.schema.json"}
+    },
+    "unknowns": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["unknown_id", "description", "materiality", "blocking", "status"],
+        "properties": {
+          "unknown_id": {"type": "string", "minLength": 1},
+          "subject_ref": {"type": ["string", "null"]},
+          "domain": {"type": ["string", "null"]},
+          "description": {"type": "string", "minLength": 1},
+          "materiality": {"type": "string", "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"]},
+          "blocking": {"type": "boolean"},
+          "status": {"type": "string", "enum": ["OPEN", "RESOLVED", "SUPERSEDED", "NOT_APPLICABLE"]},
+          "resolution_condition": {"type": ["string", "null"]},
+          "basis_refs": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+        }
+      }
+    },
+    "contradictions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["contradiction_id", "record_refs", "status", "blocking"],
+        "properties": {
+          "contradiction_id": {"type": "string", "minLength": 1},
+          "record_refs": {"type": "array", "minItems": 2, "items": {"type": "string"}, "uniqueItems": true},
+          "description": {"type": ["string", "null"]},
+          "status": {"type": "string", "enum": ["OPEN", "RESOLVED", "SUPERSEDED"]},
+          "blocking": {"type": "boolean"},
+          "resolution_ref": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "closure": {
+      "type": "array",
+      "items": {"$ref": "closure.schema.json"}
+    },
+    "ledger_candidates": {
+      "type": "array",
+      "items": {"$ref": "ledger-candidate.schema.json"}
+    },
+    "acceptance_cases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["case_id", "scenario", "status"],
+        "properties": {
+          "case_id": {"type": "string", "minLength": 1},
+          "scenario": {"type": "string", "minLength": 1},
+          "expected_behavior": {"type": ["string", "null"]},
+          "observed_behavior": {"type": ["string", "null"]},
+          "status": {"type": "string", "enum": ["NOT_RUN", "PASS", "FAIL", "UNRESOLVED"]},
+          "basis_refs": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+        }
+      }
+    },
+    "next_questions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["question_id", "question", "reason", "priority"],
+        "properties": {
+          "question_id": {"type": "string", "minLength": 1},
+          "question": {"type": "string", "minLength": 1},
+          "reason": {"type": "string", "minLength": 1},
+          "priority": {"type": "integer", "minimum": 1},
+          "related_refs": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+        }
+      }
+    },
+    "sealed_release_ref": {"type": ["string", "null"]},
+    "supersedes_workspace_id": {"type": ["string", "null"]}
+  }
+}

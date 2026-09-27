@@ -67,7 +67,7 @@ export function createFileStore(rootDir, options = {}) {
   const eventsByWorkspace = new Map();
   let initialized = false;
   let initializing = null;
-  let appendQueue = Promise.resolve();
+  let writeQueue = Promise.resolve();
 
   const workspaceDir = workspaceId => path.join(workspacesDir, encodeWorkspaceId(workspaceId));
   const eventsPath = workspaceId => path.join(workspaceDir(workspaceId), 'events.jsonl');
@@ -132,9 +132,9 @@ export function createFileStore(rootDir, options = {}) {
     }
   }
 
-  async function appendSerialized(operation) {
-    const run = appendQueue.then(operation, operation);
-    appendQueue = run.then(() => undefined, () => undefined);
+  async function serializeWrite(operation) {
+    const run = writeQueue.then(operation, operation);
+    writeQueue = run.then(() => undefined, () => undefined);
     return run;
   }
 
@@ -143,7 +143,7 @@ export function createFileStore(rootDir, options = {}) {
       const event = makeFoundryEvent(raw);
       await initialize();
 
-      return appendSerialized(async () => {
+      return serializeWrite(async () => {
         const existing = eventIndex.get(event.event_id);
         if (existing) {
           if (canonical(existing) !== canonical(event)) {
@@ -213,29 +213,31 @@ export function createFileStore(rootDir, options = {}) {
       const check = validateFoundrySnapshot(snapshot);
       if (!check.valid) throw new Error(check.errors.join('; '));
 
-      const events = eventsByWorkspace.get(snapshot.workspace_id) ?? [];
-      const latestSequence = events.length ? events[events.length - 1].sequence : 0;
-      if (snapshot.through_sequence > latestSequence) {
-        throw new Error(`snapshot through_sequence ${snapshot.through_sequence} exceeds stored event sequence ${latestSequence}`);
-      }
+      return serializeWrite(async () => {
+        const events = eventsByWorkspace.get(snapshot.workspace_id) ?? [];
+        const latestSequence = events.length ? events[events.length - 1].sequence : 0;
+        if (snapshot.through_sequence > latestSequence) {
+          throw new Error(`snapshot through_sequence ${snapshot.through_sequence} exceeds stored event sequence ${latestSequence}`);
+        }
 
-      const prior = await store.readLatestSnapshot(snapshot.workspace_id);
-      if (prior && snapshot.through_sequence < prior.through_sequence) {
-        throw new Error(`snapshot regression for ${snapshot.workspace_id}: ${snapshot.through_sequence} < ${prior.through_sequence}`);
-      }
+        const prior = await store.readLatestSnapshot(snapshot.workspace_id);
+        if (prior && snapshot.through_sequence < prior.through_sequence) {
+          throw new Error(`snapshot regression for ${snapshot.workspace_id}: ${snapshot.through_sequence} < ${prior.through_sequence}`);
+        }
 
-      const dir = workspaceDir(snapshot.workspace_id);
-      await mkdir(dir, { recursive: true });
-      const finalPath = snapshotPath(snapshot.workspace_id);
-      const tempPath = `${finalPath}.${process.pid}.${Date.now()}.tmp`;
-      try {
-        await writeFile(tempPath, `${JSON.stringify(snapshot, null, 2)}\n`, { encoding: 'utf8', flag: 'wx' });
-        await rename(tempPath, finalPath);
-      } catch (error) {
-        await rm(tempPath, { force: true }).catch(() => {});
-        throw error;
-      }
-      return clone(snapshot);
+        const dir = workspaceDir(snapshot.workspace_id);
+        await mkdir(dir, { recursive: true });
+        const finalPath = snapshotPath(snapshot.workspace_id);
+        const tempPath = `${finalPath}.${process.pid}.${Date.now()}.tmp`;
+        try {
+          await writeFile(tempPath, `${JSON.stringify(snapshot, null, 2)}\n`, { encoding: 'utf8', flag: 'wx' });
+          await rename(tempPath, finalPath);
+        } catch (error) {
+          await rm(tempPath, { force: true }).catch(() => {});
+          throw error;
+        }
+        return clone(snapshot);
+      });
     },
 
     async hasEvent(eventId) {
@@ -248,7 +250,7 @@ export function createFileStore(rootDir, options = {}) {
     adapter_info: Object.freeze({
       kind: 'FILE',
       root_dir: absoluteRoot,
-      concurrency: options.concurrency ?? 'SINGLE_PROCESS_SERIALIZED_APPENDS'
+      concurrency: options.concurrency ?? 'SINGLE_PROCESS_SERIALIZED_WRITES'
     })
   };
 

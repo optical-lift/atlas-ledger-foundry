@@ -35,13 +35,16 @@ function stableId(record) {
     record?.impact_id ?? record?.delta_id ?? null;
 }
 
-function allKnownRefs(workspace) {
-  const refs = new Set();
-  for (const key of COLLECTIONS) for (const record of workspace[key] ?? []) {
-    const id = stableId(record);
-    if (id) refs.add(id);
-  }
-  return refs;
+function preservedEvidenceRefs(workspace) {
+  return new Set([
+    ...(workspace.sources ?? []).map(s => s?.source_id),
+    ...(workspace.testimony ?? []).map(t => t?.testimony_id)
+  ].filter(Boolean));
+}
+
+function relaySequenceFromWorkspace(workspace) {
+  const match = /^relay-(\d+)$/.exec(String(workspace?.workspace_version ?? ''));
+  return match ? Number(match[1]) : 0;
 }
 
 function replaceTurnAlias(value, testimonyId) {
@@ -109,9 +112,9 @@ function appendAdjudication(workspace, result) {
 
 function validateObservationBasis(workspace, observation) {
   const result = validateDiscoveryObservation(observation);
-  const known = allKnownRefs(workspace);
-  const missing = (observation.supporting_refs ?? []).filter(ref => !known.has(ref));
-  if (missing.length) result.errors.push(`unknown supporting_refs: ${missing.join(', ')}`);
+  const evidence = preservedEvidenceRefs(workspace);
+  const invalid = (observation.supporting_refs ?? []).filter(ref => !evidence.has(ref));
+  if (invalid.length) result.errors.push(`supporting_refs must resolve to preserved source/testimony evidence: ${invalid.join(', ')}`);
   result.valid = result.errors.length === 0;
   return result;
 }
@@ -127,10 +130,14 @@ function turnReceiptId(turnId) {
 }
 
 export function createMockRelay(workspace = {}, options = {}) {
+  const normalized = ensureWorkspace(workspace);
+  const sequence = Number.isInteger(options.sequence) && options.sequence >= 0
+    ? options.sequence
+    : relaySequenceFromWorkspace(normalized);
   return {
-    relay_id: options.relay_id ?? `relay-${workspace.workspace_id ?? 'workspace'}`,
-    sequence: 0,
-    workspace: ensureWorkspace(workspace),
+    relay_id: options.relay_id ?? `relay-${normalized.workspace_id ?? 'workspace'}`,
+    sequence,
+    workspace: normalized,
     turn_receipts: [],
     created_at: options.created_at ?? '1970-01-01T00:00:00.000Z'
   };
@@ -206,7 +213,7 @@ export function processRelayTurn(relayInput, turn, options = {}) {
     return { relay, receipt: clone(receipt), replayed: false };
   }
 
-  // Canon Discovery: observations must be grounded in preserved evidence, never industry assumptions.
+  // Canon Discovery: observations must be grounded in preserved source/testimony evidence, never industry assumptions.
   if ((turn.discovery_observations ?? []).length) {
     const observations = replaceTurnAlias(turn.discovery_observations, testimonyId);
     const errors = [];
@@ -233,7 +240,7 @@ export function processRelayTurn(relayInput, turn, options = {}) {
     };
   }
 
-  // Stage B/C: interpretation is optional, but if supplied it is adjudicated by service-like rules.
+  // Interpretation is optional, but if supplied it is adjudicated by service-like rules.
   if (turn.interpretation_plan) {
     const plan = replaceTurnAlias(turn.interpretation_plan, testimonyId);
     plan.workspace_id ??= relay.workspace.workspace_id;

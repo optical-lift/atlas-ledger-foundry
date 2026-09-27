@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/optical-lift/atlas-ledger-foundry/spec/schema/operation-envelope.schema.json",
+  "title": "Foundry Operation Envelope v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["operation_id","operation","protocol_version","principal_id","carrier_id","requested_at","payload"],
+  "properties": {
+    "operation_id": {"type":"string","minLength":1},
+    "operation": {"type":"string","minLength":1},
+    "protocol_version": {"type":"string","const":"0.1"},
+    "workspace_id": {"type":["string","null"]},
+    "principal_id": {"type":"string","minLength":1},
+    "carrier_id": {"type":"string","minLength":1},
+    "requested_at": {"type":"string","format":"date-time"},
+    "idempotency_key": {"type":["string","null"]},
+    "basis_refs": {"type":"array","items":{"type":"string"},"uniqueItems":true},
+    "payload": {"type":"object"}
+  }
+}

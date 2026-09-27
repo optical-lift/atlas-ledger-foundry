@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/optical-lift/atlas-ledger-foundry/spec/schema/operation-result.schema.json",
+  "title": "Foundry Operation Result v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["operation_id","operation","status","protocol_version","completed_at"],
+  "properties": {
+    "operation_id": {"type":"string","minLength":1},
+    "operation": {"type":"string","minLength":1},
+    "status": {"type":"string","enum":["SUCCESS","REJECTED","NEEDS_CONFIRMATION","BLOCKED","UNRESOLVED","NO_CHANGE"]},
+    "protocol_version": {"type":"string","const":"0.1"},
+    "workspace_id": {"type":["string","null"]},
+    "completed_at": {"type":"string","format":"date-time"},
+    "record_refs": {"type":"array","items":{"type":"string"},"uniqueItems":true},
+    "blockers": {"type":"array","items":{"type":"string"}},
+    "next_recommended_operation": {"type":["string","null"]},
+    "result": {}
+  }
+}

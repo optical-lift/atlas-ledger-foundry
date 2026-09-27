@@ -1,0 +1,41 @@
+{
+  "protocol_version": "0.1",
+  "surface_version": "0.1",
+  "description": "Provider-neutral governed operation surface for Atlas Ledger Foundry.",
+  "operations": [
+    {"name":"get_foundry_orientation","class":"read","authority":"service","writes":false},
+    {"name":"start_workspace","class":"workspace","authority":"principal_or_authorized_carrier","writes":true},
+    {"name":"resume_workspace","class":"read","authority":"authorized_carrier","writes":false},
+    {"name":"get_workspace_state","class":"read","authority":"authorized_carrier","writes":false},
+    {"name":"get_relevant_evidence","class":"read","authority":"authorized_carrier","writes":false},
+    {"name":"get_governing_rule","class":"read","authority":"service","writes":false},
+    {"name":"get_closure_status","class":"read","authority":"authorized_carrier","writes":false},
+    {"name":"get_next_question","class":"read","authority":"service","writes":false},
+    {"name":"record_source","class":"intake","authority":"authorized_carrier","writes":true},
+    {"name":"record_testimony","class":"intake","authority":"authorized_carrier","writes":true},
+    {"name":"submit_candidate_assertions","class":"interpretation","authority":"authorized_carrier","writes":true,"may_establish":false},
+    {"name":"record_unknown","class":"interpretation","authority":"authorized_carrier","writes":true},
+    {"name":"record_contradiction","class":"interpretation","authority":"authorized_carrier","writes":true},
+    {"name":"record_ledger_candidate","class":"topology","authority":"authorized_carrier","writes":true,"may_classify_as_separate_ledger":false},
+    {"name":"record_acceptance_case","class":"acceptance","authority":"authorized_carrier","writes":true},
+    {"name":"confirm_assertion","class":"reconciliation","authority":"governed_confirmation","writes":true},
+    {"name":"correct_assertion","class":"reconciliation","authority":"governed_confirmation","writes":true},
+    {"name":"resolve_contradiction","class":"reconciliation","authority":"governed_confirmation","writes":true},
+    {"name":"update_closure","class":"closure","authority":"governed_confirmation","writes":true},
+    {"name":"classify_ledger_candidate","class":"topology","authority":"governed_confirmation","writes":true},
+    {"name":"record_acceptance_result","class":"acceptance","authority":"governed_adjudication","writes":true},
+    {"name":"run_readiness_check","class":"readiness","authority":"service","writes":true},
+    {"name":"request_seal","class":"seal","authority":"principal_plus_service_gate","writes":true},
+    {"name":"export_workspace","class":"export","authority":"principal_or_authorized_carrier","writes":false},
+    {"name":"export_sealed_candidate","class":"export","authority":"principal_or_authorized_carrier","writes":false}
+  ],
+  "forbidden_surfaces": [
+    "execute_sql",
+    "generic_crud",
+    "direct_atlas_reality_write",
+    "force_seal",
+    "bypass_readiness",
+    "rewrite_provenance",
+    "impersonate_principal_confirmation"
+  ]
+}

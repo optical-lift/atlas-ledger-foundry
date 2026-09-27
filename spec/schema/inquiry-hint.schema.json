@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/optical-lift/atlas-ledger-foundry/spec/schema/inquiry-hint.schema.json",
+  "title": "Foundry Inquiry Hint v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "uncertainty_kind": {
+      "type": ["string", "null"],
+      "enum": [null,"open_field","applicability","competing_models","source","provenance","completeness","confirmation","function","scope","trigger","exception","assumption","refresh"]
+    },
+    "operator_hint": {
+      "type": ["string", "null"],
+      "enum": [null,"NARRATE","GATE","DISCRIMINATE","TRACE","INVERT","VERIFY","DEFINE_BY_FUNCTION","BOUND","TRIGGER","EXCEPTION","COUNTERFACTUAL","SIGNPOST","CLOSE","ESCALATE"]
+    },
+    "evidence_standard": {"type": "string", "enum": ["NORMAL", "ELEVATED"], "default": "NORMAL"},
+    "needs_function_definition": {"type": "boolean", "default": false},
+    "needs_scope": {"type": "boolean", "default": false},
+    "needs_trigger": {"type": "boolean", "default": false},
+    "needs_exception": {"type": "boolean", "default": false},
+    "needs_confirmation": {"type": "boolean", "default": false},
+    "needs_signpost": {"type": "boolean", "default": false},
+    "verification_required": {"type": "boolean", "default": false},
+    "verified": {"type": "boolean", "default": false}
+  }
+}

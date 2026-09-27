@@ -6,12 +6,14 @@ It is not the production Foundry Service. It exists so governing behavior can be
 
 ## Files
 
-- `foundry-engines.mjs` — deterministic Question Selection and Readiness reference functions.
-- `question-operators.mjs` — the fourteen-operator inquiry library, operator selection, escalation modifiers, and question rendering.
+- `foundry-engines.mjs` — deterministic Question Selection and Readiness reference functions, including Canon Discovery gap intake.
+- `question-operators.mjs` — the fifteen-operator inquiry library, operator selection, escalation modifiers, and question rendering.
+- `discovery-grammar.mjs` — validation and candidate generation for evidence-backed canon discovery observations.
 - `answer-processing.mjs` — cases, interpretation validation, conservative-vs-truth-changing adjudication gates, dependency impact, and structural-delta construction.
 - `session-context.mjs` — bounded resume-packet projection for a fresh carrier.
 - `self-test.mjs` — priority and readiness checks.
-- `operator-self-test.mjs` — every question operator plus bidirectional completeness and signpost behavior.
+- `operator-self-test.mjs` — every question operator plus bidirectional completeness, repair, and signpost behavior.
+- `discovery-self-test.mjs` — cross-domain invariance, evidence requirements, industry non-authority, and discovery-gap integration.
 - `answer-self-test.mjs` — authority scoping, explicit new unknowns, dependency reopening, signals, and no-change behavior.
 - `session-self-test.mjs` — bounded session context and operator-aware resume behavior.
 
@@ -22,6 +24,7 @@ With Node.js 20+:
 ```bash
 node reference/self-test.mjs
 node reference/operator-self-test.mjs
+node reference/discovery-self-test.mjs
 node reference/answer-self-test.mjs
 node reference/session-self-test.mjs
 ```
@@ -34,4 +37,4 @@ A later implementation may be more sophisticated, but it must preserve the gover
 
 The reference implementation is deliberately conservative. It does not infer absent material domains, silently establish assertions, decide readiness from record count, let a carrier force a truth-changing disposition, or hand a carrier the entire workspace merely for convenience.
 
-An AI may help generate candidate gaps, natural-language phrasing, interpretation plans, discrepancies, signals, and proposed dispositions. The service retains an inspectable layer for priority, operator selection, answer adjudication, dependency impact, readiness, context selection, and authority gates.
+An AI may help generate evidence-backed discovery observations, candidate gaps, natural-language phrasing, interpretation plans, discrepancies, signals, and proposed dispositions. The service retains an inspectable layer for discovery provenance, priority, operator selection, answer adjudication, dependency impact, readiness, context selection, and authority gates.

@@ -17,6 +17,7 @@ A Foundry agent must preserve the difference between what was said, what was inf
 - [`FOR_AI.md`](FOR_AI.md) — governing orientation for an AI carrying out Foundry work.
 - [`governing/ATLAS_ORDER.md`](governing/ATLAS_ORDER.md) — the north-star structural order.
 - [`governing/REALITY_GRAMMAR.md`](governing/REALITY_GRAMMAR.md) — the minimum grammar for representing reality.
+- [`governing/CANON_DISCOVERY_GRAMMAR.md`](governing/CANON_DISCOVERY_GRAMMAR.md) — canon-derived, function-first discovery rules for AI intake and onboarding.
 - [`governing/LEDGER_TOPOLOGY.md`](governing/LEDGER_TOPOLOGY.md) — how to decide whether something is a Ledger, part of a Ledger, or an unresolved Ledger candidate.
 - [`governing/AGENT_GOVERNANCE.md`](governing/AGENT_GOVERNANCE.md) — authority, custody, uncertainty, and stopping rules for delegated AI work.
 - [`foundry/FOUNDRY_METHOD.md`](foundry/FOUNDRY_METHOD.md) — the discovery and reconciliation method.
@@ -28,6 +29,8 @@ A Foundry agent must preserve the difference between what was said, what was inf
 **Faithful incompleteness is superior to invented completeness.**
 
 The agent is not asked to imitate Atlas vocabulary. It is asked to use Atlas's governing distinctions to discover the structure actually present in the human's reality.
+
+During onboarding, declared industry is treated as context and vocabulary, not as ontology authority. The same functional structure should produce materially equivalent Foundry questions across differently named fields.
 
 ## Status
 

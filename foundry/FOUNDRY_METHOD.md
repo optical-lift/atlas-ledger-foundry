@@ -18,6 +18,8 @@ Record:
 
 The field may change as discovery continues.
 
+A declared industry, profession, or conventional category is context for vocabulary. It is not the ontology for the field.
+
 ## Phase 2 — Recover existing evidence
 
 Before asking broad questions, recover what the human already has:
@@ -56,6 +58,8 @@ Extract candidate:
 
 Preserve provenance.
 
+During AI intake, apply `governing/CANON_DISCOVERY_GRAMMAR.md` before industry normalization. Generate only evidence-backed structural observations through the Canon Discovery lenses, and preserve `supporting_refs`, `cluster_refs`, and `industry_assumption: false` on resulting discovery gaps.
+
 Do not interrupt extraction to confirm every minor claim individually.
 
 ## Phase 4 — Ask gap-driven questions
@@ -64,15 +68,17 @@ Ask the next question whose answer most usefully:
 
 - resolves a material contradiction;
 - establishes identity or continuity;
-- clarifies authority or responsibility;
+- clarifies authority, responsibility, custody, or access;
 - establishes a state transition;
 - determines a Ledger boundary;
 - closes a materially important collection;
 - distinguishes law from current position;
-- establishes an exception or dependency;
+- establishes an exception, repair path, or dependency;
 - makes an unresolved area operationally interpretable.
 
 Ask in ordinary language.
+
+Question Selection ranks the candidate gaps. Question Operators determine the semantic job of the next question. The carrier may use canon-derived discovery structure internally, but must not force canon or Atlas vocabulary onto the human.
 
 ## Phase 5 — Separate standing law from current position
 
@@ -133,7 +139,7 @@ Use representative and edge-case scenarios to test:
 - dependencies;
 - commitments;
 - failures;
-- reversals;
+- repair and reversals;
 - verification;
 - cross-Ledger boundaries.
 
@@ -149,6 +155,7 @@ A Ledger candidate is Foundry-ready only when:
 - authority is sufficiently established;
 - material contradictions are resolved or explicitly represented;
 - consequential transitions can be interpreted;
+- material repair paths are represented where breach changes operational meaning;
 - known unknowns are explicit;
 - acceptance cases pass;
 - no material area remains silently unasked.

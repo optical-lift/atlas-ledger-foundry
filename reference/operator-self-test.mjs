@@ -13,6 +13,7 @@ const cases = [
   ['BOUND', { id:'B1', type:'boundary', reason:'Approval authority scope is unclear' }],
   ['TRIGGER', { id:'TR1', type:'transition', reason:'When approved becomes scheduled' }],
   ['EXCEPTION', { id:'E1', type:'exception', reason:'Normal approval rule may be overridden' }],
+  ['REPAIR', { id:'R1', type:'repair', reason:'A failed approval can be restored after correction' }],
   ['COUNTERFACTUAL', { id:'C1', type:'counterfactual', reason:'This program appears independently governed' }],
   ['SIGNPOST', { id:'S1', type:'signpost', reason:'Alex currently has final authority' }],
   ['CLOSE', { id:'CL1', type:'closure', reason:'Close the current locations collection', subject_label:'current locations' }],

@@ -97,7 +97,10 @@ function normalizeCandidateRecords(workspace, plan) {
 
 function appendAdjudication(workspace, result) {
   if (!result) return;
-  appendUnique(workspace.adjudication_cases, [result.case], 'case_id');
+  const caseRecord = result.status === 'REJECTED'
+    ? { ...result.case, status: 'REJECTED', residual_issue_refs: [], closed_at: result.case?.closed_at ?? null }
+    : result.case;
+  appendUnique(workspace.adjudication_cases, [caseRecord], 'case_id');
   appendUnique(workspace.dispositions, result.dispositions ?? [], 'disposition_id');
   appendUnique(workspace.dependency_impacts, result.dependency_impacts ?? [], 'impact_id');
   appendUnique(workspace.structural_deltas, result.structural_delta ? [result.structural_delta] : [], 'delta_id');

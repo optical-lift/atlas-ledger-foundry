@@ -43,7 +43,8 @@ const turn1 = processRelayTurn(relay0, {
       description: 'Approval authority changes at a threshold.',
       supporting_refs: ['$turn_testimony'],
       industry_assumption: false,
-      materiality: 'HIGH'
+      materiality: 'HIGH',
+      blocking: true
     }
   ]
 }, { now: '2026-09-27T20:00:00Z' });

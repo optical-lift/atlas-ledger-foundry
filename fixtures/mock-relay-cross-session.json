@@ -14,7 +14,9 @@
         "observation_id": "O-CUSTODY",
         "discovery_lens": "CUSTODY",
         "description": "Responsibility moves to an execution bearer after a readiness condition.",
-        "supporting_refs": ["$turn_testimony"],
+        "supporting_refs": [
+          "$turn_testimony"
+        ],
         "industry_assumption": false,
         "materiality": "HIGH"
       },
@@ -22,9 +24,12 @@
         "observation_id": "O-BOUNDARY",
         "discovery_lens": "BOUNDARY",
         "description": "Approval authority changes at a threshold.",
-        "supporting_refs": ["$turn_testimony"],
+        "supporting_refs": [
+          "$turn_testimony"
+        ],
         "industry_assumption": false,
-        "materiality": "HIGH"
+        "materiality": "HIGH",
+        "blocking": true
       }
     ]
   },

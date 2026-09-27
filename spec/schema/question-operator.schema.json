@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/optical-lift/atlas-ledger-foundry/spec/schema/question-operator.schema.json",
+  "title": "Foundry Question Operator Plan v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["operator", "question", "operator_reason", "expected_structural_gain", "target_ref"],
+  "properties": {
+    "operator": {
+      "type": "string",
+      "enum": ["NARRATE","GATE","DISCRIMINATE","TRACE","INVERT","VERIFY","DEFINE_BY_FUNCTION","BOUND","TRIGGER","EXCEPTION","COUNTERFACTUAL","SIGNPOST","CLOSE","ESCALATE"]
+    },
+    "operator_modifiers": {
+      "type": "array",
+      "items": {"type": "string", "enum": ["ESCALATE"]},
+      "uniqueItems": true
+    },
+    "wrapped_operator": {
+      "type": ["string", "null"],
+      "enum": ["NARRATE","GATE","DISCRIMINATE","TRACE","INVERT","VERIFY","DEFINE_BY_FUNCTION","BOUND","TRIGGER","EXCEPTION","COUNTERFACTUAL","SIGNPOST","CLOSE","ESCALATE",null]
+    },
+    "question": {"type": "string", "minLength": 1},
+    "operator_reason": {"type": "string", "minLength": 1},
+    "expected_structural_gain": {"type": "string", "minLength": 1},
+    "target_ref": {"type": ["string", "null"]},
+    "next_operator_candidates": {
+      "type": "array",
+      "items": {"type": "string"},
+      "uniqueItems": true
+    }
+  }
+}

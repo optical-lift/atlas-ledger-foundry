@@ -23,11 +23,12 @@
     "human_input": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["content", "representation"],
+      "required": ["content", "representation", "testimony_alias"],
       "properties": {
         "content": {"type": "string", "minLength": 1},
         "representation": {"type": "string", "enum": ["EXACT", "RECOVERABLE_EXACT", "PARAPHRASE"]},
-        "source_locator": {"type": ["string", "null"]}
+        "source_locator": {"type": ["string", "null"]},
+        "testimony_alias": {"type": "string", "pattern": "^\\$[A-Za-z][A-Za-z0-9_-]*$"}
       }
     },
     "proposed_operations": {
@@ -40,7 +41,6 @@
           "operation": {
             "type": "string",
             "enum": [
-              "record_testimony",
               "submit_candidate_assertions",
               "record_unknown",
               "record_contradiction",

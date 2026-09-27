@@ -24,6 +24,15 @@
     },
     "material": {"type": "boolean", "default": true},
     "blocking": {"type": "boolean", "default": false},
+    "known_member_count": {"type": ["integer", "null"], "minimum": 0},
+    "represented_members_validated": {"type": "boolean", "default": false},
+    "inverse_completeness_checked": {"type": "boolean", "default": false},
+    "inverse_check_basis_refs": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    },
+    "inquiry": {"$ref": "inquiry-hint.schema.json"},
     "basis_refs": {
       "type": "array",
       "items": {"type": "string", "minLength": 1},

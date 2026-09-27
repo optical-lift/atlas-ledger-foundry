@@ -10,8 +10,21 @@ function ref(id, type, reason, priorityClass, extra = {}) {
   return { id, type, reason, priorityClass, ...extra };
 }
 
+function inquiry(record) { return record?.inquiry ?? record ?? {}; }
+function assertionKind(a) { return String(a?.kind ?? a?.assertion_kind ?? a?.predicate ?? '').toLowerCase(); }
+function assertionBasis(a) { return a?.basis_refs ?? a?.provenance?.basis_refs ?? []; }
+function assertionNote(a) { return a?.interpretation_note ?? a?.provenance?.interpretation_note ?? null; }
+function closureState(c) { return c?.state ?? c?.status ?? 'NOT_YET_RECONCILED'; }
+function closureLabel(c) { return c?.scope_label ?? c?.label ?? c?.domain ?? c?.scope_key ?? c?.closure_id ?? 'this domain'; }
+function closureMaterial(c) { return c?.material ?? (c?.materiality === 'MATERIAL') ?? !!c?.blocking; }
+function closureCollection(c) { return c?.scope_kind === 'COLLECTION' || c?.collection === true; }
+function inverseChecked(c) { return c?.inverse_completeness_checked ?? c?.inverse_checked ?? false; }
+function ledgerClassification(l) { return l?.classification ?? l?.status ?? 'UNRESOLVED'; }
+function ledgerName(l) { return l?.working_name ?? l?.label ?? l?.ledger_candidate_id ?? 'this field'; }
+
 function inferUnknownType(u) {
-  const k = String(u.uncertainty_kind ?? '').toLowerCase();
+  const q = inquiry(u);
+  const k = String(q.uncertainty_kind ?? '').toLowerCase();
   if (k === 'applicability') return 'gate';
   if (k === 'source' || k === 'provenance') return 'provenance';
   if (k === 'completeness') return 'completeness';
@@ -26,13 +39,14 @@ function inferUnknownType(u) {
 }
 
 function inferAssertionType(a) {
-  const k = String(a.kind ?? '').toLowerCase();
-  if (a.needs_function_definition || a.uncertainty_kind === 'function') return 'function';
-  if (a.needs_scope || a.uncertainty_kind === 'scope') return 'boundary';
-  if (a.needs_trigger || a.uncertainty_kind === 'trigger') return 'transition';
-  if (a.needs_exception || a.uncertainty_kind === 'exception') return 'exception';
-  if (a.needs_signpost || a.uncertainty_kind === 'refresh') return 'signpost';
-  if (a.needs_confirmation || a.uncertainty_kind === 'confirmation') return 'verification';
+  const q = inquiry(a);
+  const k = assertionKind(a);
+  if (q.needs_function_definition || q.uncertainty_kind === 'function') return 'function';
+  if (q.needs_scope || q.uncertainty_kind === 'scope') return 'boundary';
+  if (q.needs_trigger || q.uncertainty_kind === 'trigger') return 'transition';
+  if (q.needs_exception || q.uncertainty_kind === 'exception') return 'exception';
+  if (q.needs_signpost || q.uncertainty_kind === 'refresh') return 'signpost';
+  if (q.needs_confirmation || q.uncertainty_kind === 'confirmation') return 'verification';
   if (/authority|responsib|custody|jurisdiction|permission/.test(k)) return 'authority';
   if (/identity|continuity|same_as|different_from/.test(k)) return 'identity';
   if (/event|transition|state|rule|condition/.test(k)) return 'transition';
@@ -43,11 +57,11 @@ export function collectQuestionCandidates(workspace) {
   const out = [];
 
   for (const a of workspace.assertions ?? []) {
-    if (a.stage === 'ESTABLISHED' && ['HIGH', 'CRITICAL'].includes(a.materiality) && !(a.basis_refs?.length)) {
+    if (a.stage === 'ESTABLISHED' && ['HIGH', 'CRITICAL'].includes(a.materiality) && assertionBasis(a).length === 0) {
       out.push(ref(a.assertion_id, 'provenance', `Material established assertion ${a.assertion_id} lacks a preserved basis.`, 'P0', {
         blocking: true,
         materiality: a.materiality,
-        kind: a.kind,
+        kind: assertionKind(a),
         related_refs: []
       }));
     }
@@ -65,25 +79,28 @@ export function collectQuestionCandidates(workspace) {
 
   for (const u of workspace.unknowns ?? []) {
     if (u.status !== 'OPEN') continue;
-    out.push(ref(u.unknown_id, inferUnknownType(u), u.description, u.blocking ? 'P1' : (u.priority_class ?? 'P7'), {
+    const q = inquiry(u);
+    out.push(ref(u.unknown_id, inferUnknownType(u), u.description, u.blocking ? 'P1' : 'P7', {
       blocking: !!u.blocking,
       materiality: u.materiality ?? 'MEDIUM',
       domain: u.domain ?? null,
       subject_label: u.subject_label ?? null,
-      uncertainty_kind: u.uncertainty_kind ?? null,
-      operator_hint: u.operator_hint ?? null,
-      evidence_standard: u.evidence_standard ?? null,
+      uncertainty_kind: q.uncertainty_kind ?? null,
+      operator_hint: q.operator_hint ?? null,
+      evidence_standard: q.evidence_standard ?? null,
       related_refs: u.basis_refs ?? []
     }));
   }
 
   for (const l of workspace.ledger_candidates ?? []) {
-    if (l.status === 'UNRESOLVED' || l.classification === 'UNRESOLVED' || !l.classification) {
-      out.push(ref(l.ledger_candidate_id, 'topology', `Determine how ${l.label ?? 'this field'} relates to the current Ledger.`, 'P2', {
+    const classification = ledgerClassification(l);
+    if (classification === 'UNRESOLVED' || !classification) {
+      const name = ledgerName(l);
+      out.push(ref(l.ledger_candidate_id, 'topology', `Determine how ${name} relates to the current Ledger.`, 'P2', {
         blocking: !!l.blocking,
         materiality: l.blocking ? 'HIGH' : 'MEDIUM',
-        label: l.label,
-        subject_label: l.label,
+        label: name,
+        subject_label: name,
         related_refs: l.basis_refs ?? [],
         uncertainty_kind: 'competing_models'
       }));
@@ -91,52 +108,56 @@ export function collectQuestionCandidates(workspace) {
   }
 
   for (const a of workspace.assertions ?? []) {
-    if (a.stage === 'NEEDS_CLARIFICATION' || a.stage === 'CONFLICTED' || (a.stage === 'CANDIDATE' && a.needs_confirmation)) {
+    const q = inquiry(a);
+    if (a.stage === 'NEEDS_CLARIFICATION' || a.stage === 'CONFLICTED' || (a.stage === 'CANDIDATE' && q.needs_confirmation)) {
       const type = inferAssertionType(a);
       const authority = type === 'authority';
       const identity = type === 'identity';
       const transition = ['transition', 'exception'].includes(type);
-      out.push(ref(a.assertion_id, type, a.interpretation_note ?? `Clarify ${a.kind ?? 'assertion'}.`,
+      out.push(ref(a.assertion_id, type, assertionNote(a) ?? `Clarify ${a.assertion_kind ?? a.predicate ?? 'assertion'}.`,
         authority || identity ? 'P3' : transition ? 'P4' : type === 'boundary' ? 'P3' : type === 'verification' ? 'P3' : type === 'function' ? 'P3' : 'P7', {
           blocking: a.stage === 'CONFLICTED',
           materiality: a.materiality ?? 'HIGH',
-          kind: a.kind,
-          subject_label: a.subject_label ?? a.label ?? null,
-          uncertainty_kind: a.uncertainty_kind ?? null,
-          operator_hint: a.operator_hint ?? null,
-          needs_function_definition: !!a.needs_function_definition,
-          needs_scope: !!a.needs_scope,
-          needs_trigger: !!a.needs_trigger,
-          needs_exception: !!a.needs_exception,
-          needs_confirmation: !!a.needs_confirmation,
-          related_refs: a.basis_refs ?? []
+          kind: assertionKind(a),
+          subject_label: a.subject_label ?? a.subject_ref ?? null,
+          uncertainty_kind: q.uncertainty_kind ?? null,
+          operator_hint: q.operator_hint ?? null,
+          needs_function_definition: !!q.needs_function_definition,
+          needs_scope: !!q.needs_scope,
+          needs_trigger: !!q.needs_trigger,
+          needs_exception: !!q.needs_exception,
+          needs_confirmation: !!q.needs_confirmation,
+          evidence_standard: q.evidence_standard ?? null,
+          related_refs: assertionBasis(a)
         }));
     }
 
-    if (a.stage === 'ESTABLISHED' && a.needs_signpost === true) {
-      out.push(ref(a.assertion_id, 'signpost', a.interpretation_note ?? `Established claim ${a.assertion_id} needs an observable refresh trigger.`, 'P6', {
+    if (a.stage === 'ESTABLISHED' && q.needs_signpost === true) {
+      out.push(ref(a.assertion_id, 'signpost', assertionNote(a) ?? `Established claim ${a.assertion_id} needs an observable refresh trigger.`, 'P6', {
         blocking: false,
         materiality: a.materiality ?? 'MEDIUM',
-        kind: a.kind,
-        subject_label: a.subject_label ?? a.label ?? null,
+        kind: assertionKind(a),
+        subject_label: a.subject_label ?? a.subject_ref ?? null,
         needs_signpost: true,
-        related_refs: a.basis_refs ?? []
+        related_refs: assertionBasis(a)
       }));
     }
   }
 
   for (const c of workspace.closure ?? []) {
-    if (!['KNOWN_INCOMPLETE', 'UNRESOLVED', 'NOT_YET_RECONCILED'].includes(c.status)) continue;
-    const shouldInvert = c.collection === true && c.inverse_checked !== true && c.known_member_count > 0;
+    const state = closureState(c);
+    if (!['KNOWN_INCOMPLETE', 'UNRESOLVED', 'NOT_YET_RECONCILED'].includes(state)) continue;
+    const shouldInvert = closureCollection(c) && inverseChecked(c) !== true && (c.known_member_count ?? 0) > 0;
+    const label = closureLabel(c);
     out.push(ref(c.closure_id, shouldInvert ? 'completeness' : 'closure',
       shouldInvert
-        ? `Test whether ${c.label ?? c.domain ?? 'this collection'} contains silent omissions by checking from reality back toward the represented list.`
-        : `Close or explicitly classify ${c.label ?? c.domain ?? 'this material domain'}.`,
+        ? `Test whether ${label} contains silent omissions by checking from reality back toward the represented list.`
+        : `Close or explicitly classify ${label}.`,
       'P5', {
-        blocking: c.materiality === 'MATERIAL' || c.blocking === true,
-        materiality: c.materiality_level ?? (c.materiality === 'MATERIAL' ? 'HIGH' : 'MEDIUM'),
-        label: c.label ?? c.domain,
-        subject_label: c.label ?? c.domain,
+        blocking: closureMaterial(c) || c.blocking === true,
+        materiality: closureMaterial(c) ? 'HIGH' : 'MEDIUM',
+        label,
+        subject_label: label,
         inverse_check_required: shouldInvert,
         related_refs: c.basis_refs ?? []
       }));
@@ -206,13 +227,8 @@ export function selectNextQuestion(workspace) {
     .sort((a, b) => b.score - a.score || String(a.id).localeCompare(String(b.id)));
 
   if (!ranked.length) return { status: 'NO_MATERIAL_QUESTION', primary: null, alternates: [] };
-
   const [primary, ...rest] = ranked;
-  return {
-    status: 'QUESTION_AVAILABLE',
-    primary: questionProjection(primary),
-    alternates: rest.slice(0, 2).map(questionProjection)
-  };
+  return { status: 'QUESTION_AVAILABLE', primary: questionProjection(primary), alternates: rest.slice(0, 2).map(questionProjection) };
 }
 
 function blocker(code, message, refs = []) { return { code, message, refs }; }
@@ -225,11 +241,13 @@ export function runReadinessCheck(workspace) {
   if (workspace.boundary_status !== 'SUFFICIENTLY_BOUNDED') blockers.push(blocker('BOUNDARY_UNRESOLVED', 'Ledger boundary is not sufficiently bounded.'));
 
   for (const c of workspace.closure ?? []) {
-    if (['KNOWN_INCOMPLETE', 'UNRESOLVED', 'NOT_YET_RECONCILED'].includes(c.status) && (c.materiality === 'MATERIAL' || c.blocking === true)) {
-      blockers.push(blocker('MATERIAL_CLOSURE_OPEN', `${c.label ?? c.domain ?? c.closure_id} is not closed.`, [c.closure_id]));
+    const state = closureState(c);
+    const material = closureMaterial(c);
+    if (['KNOWN_INCOMPLETE', 'UNRESOLVED', 'NOT_YET_RECONCILED'].includes(state) && (material || c.blocking === true)) {
+      blockers.push(blocker('MATERIAL_CLOSURE_OPEN', `${closureLabel(c)} is not closed.`, [c.closure_id]));
     }
-    if (c.collection === true && c.status === 'CLOSED_COMPLETE' && c.inverse_checked !== true) {
-      blockers.push(blocker('COMPLETENESS_NOT_INVERTED', `${c.label ?? c.domain ?? c.closure_id} was closed without a reality-to-record completeness check.`, [c.closure_id]));
+    if (closureCollection(c) && state === 'CLOSED_COMPLETE' && material && inverseChecked(c) !== true) {
+      blockers.push(blocker('COMPLETENESS_NOT_INVERTED', `${closureLabel(c)} was closed without a reality-to-record completeness check.`, [c.closure_id]));
     }
   }
 
@@ -244,23 +262,28 @@ export function runReadinessCheck(workspace) {
   }
 
   for (const l of workspace.ledger_candidates ?? []) {
-    if ((l.status === 'UNRESOLVED' || l.classification === 'UNRESOLVED' || !l.classification) && l.blocking) blockers.push(blocker('BLOCKING_TOPOLOGY', `${l.label ?? l.ledger_candidate_id} has unresolved Ledger topology.`, [l.ledger_candidate_id]));
+    if (ledgerClassification(l) === 'UNRESOLVED' && l.blocking) {
+      blockers.push(blocker('BLOCKING_TOPOLOGY', `${ledgerName(l)} has unresolved Ledger topology.`, [l.ledger_candidate_id]));
+    }
   }
 
   for (const a of workspace.assertions ?? []) {
-    if (a.stage === 'ESTABLISHED' && (a.materiality === 'HIGH' || a.materiality === 'CRITICAL') && !(a.basis_refs?.length)) {
+    const q = inquiry(a);
+    if (a.stage === 'ESTABLISHED' && ['HIGH', 'CRITICAL'].includes(a.materiality) && assertionBasis(a).length === 0) {
       blockers.push(blocker('MISSING_PROVENANCE', `Material established assertion ${a.assertion_id} has no preserved basis.`, [a.assertion_id]));
     }
-    if (a.stage === 'ESTABLISHED' && a.materiality === 'CRITICAL' && a.verification_required === true && a.verified !== true) {
+    if (a.stage === 'ESTABLISHED' && a.materiality === 'CRITICAL' && q.verification_required === true && q.verified !== true) {
       blockers.push(blocker('CRITICAL_ASSERTION_UNVERIFIED', `Critical assertion ${a.assertion_id} still requires governed verification.`, [a.assertion_id]));
     }
   }
 
   for (const ac of workspace.acceptance_cases ?? []) {
-    if (['FAIL', 'UNRESOLVED', 'NOT_RUN'].includes(ac.status) && ac.required !== false) blockers.push(blocker('ACCEPTANCE_NOT_PASSING', `Acceptance case ${ac.case_id} is ${ac.status}.`, [ac.case_id]));
+    if (['FAIL', 'UNRESOLVED', 'NOT_RUN'].includes(ac.status) && ac.required !== false) {
+      blockers.push(blocker('ACCEPTANCE_NOT_PASSING', `Acceptance case ${ac.case_id} is ${ac.status}.`, [ac.case_id]));
+    }
   }
 
-  if (!(workspace.assertions ?? []).some(a => a.stage === 'ESTABLISHED' && /authority|responsib|custody|jurisdiction/.test(String(a.kind ?? '').toLowerCase()))) {
+  if (!(workspace.assertions ?? []).some(a => a.stage === 'ESTABLISHED' && /authority|responsib|custody|jurisdiction/.test(assertionKind(a)))) {
     warnings.push({ code: 'AUTHORITY_COVERAGE_NOT_DEMONSTRATED', message: 'No established authority/responsibility assertion is visible in this snapshot.' });
   }
 

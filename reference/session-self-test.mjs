@@ -27,6 +27,7 @@ const packet = buildSessionContext(workspace, {
 assert.equal(packet.workspace_id, 'W300');
 assert.equal(packet.workspace_version, 'checkpoint-12');
 assert.equal(packet.next_question.related_refs[0], 'A300');
+assert.equal(packet.next_question.operator, 'BOUND');
 assert.ok(packet.orientation.core_rules.includes('Unknown is not none.'));
 assert.equal(packet.omissions_notice.packet_is_partial, true);
 assert.ok(packet.established_projection.some(a => a.assertion_id === 'A301'));

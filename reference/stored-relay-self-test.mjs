@@ -1,5 +1,9 @@
 import assert from 'node:assert/strict';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 import { createMemoryStore } from './foundry-store.mjs';
+import { createFileStore } from './file-store.mjs';
 import { createStoredRelayService, reduceStoredRelayEvents } from './stored-relay.mjs';
 
 const workspace = {
@@ -20,22 +24,7 @@ const workspace = {
   acceptance_cases: []
 };
 
-const store = createMemoryStore();
-const service = createStoredRelayService(store);
-
-const initialized = await service.initialize(workspace, {
-  relay_id: 'R-STORED',
-  created_at: '2026-09-27T21:00:00.000Z',
-  now: '2026-09-27T21:00:00.000Z'
-});
-assert.equal(initialized.status, 'INITIALIZED');
-assert.equal(initialized.custody.event_sequence, 1);
-assert.equal(initialized.custody.snapshot.status, 'WRITTEN');
-
-const opening = await service.resume('W-STORED', { session_id: 'S-1' });
-assert.equal(opening.next_question.operator, 'NARRATE');
-
-const first = await service.processTurn('W-STORED', {
+const firstTurn = {
   turn_id: '001',
   expected_workspace_version: 'relay-0',
   human_input: 'Once the work is ready, Dana takes custody. Anything above the normal limit comes back to me.',
@@ -61,7 +50,24 @@ const first = await service.processTurn('W-STORED', {
       blocking: true
     }
   ]
-}, { now: '2026-09-27T21:01:00.000Z' });
+};
+
+const store = createMemoryStore();
+const service = createStoredRelayService(store);
+
+const initialized = await service.initialize(workspace, {
+  relay_id: 'R-STORED',
+  created_at: '2026-09-27T21:00:00.000Z',
+  now: '2026-09-27T21:00:00.000Z'
+});
+assert.equal(initialized.status, 'INITIALIZED');
+assert.equal(initialized.custody.event_sequence, 1);
+assert.equal(initialized.custody.snapshot.status, 'WRITTEN');
+
+const opening = await service.resume('W-STORED', { session_id: 'S-1' });
+assert.equal(opening.next_question.operator, 'NARRATE');
+
+const first = await service.processTurn('W-STORED', firstTurn, { now: '2026-09-27T21:01:00.000Z' });
 
 assert.equal(first.custody.status, 'COMMITTED');
 assert.equal(first.custody.event_sequence, 2);
@@ -100,7 +106,7 @@ assert.equal((await eventOnlyService.resume('W-STORED')).next_question.operator,
 // Retrying the same turn reconstructs the prior receipt and does not append a second event.
 const replay = await freshService.processTurn('W-STORED', {
   turn_id: '001',
-  human_input: 'Once the work is ready, Dana takes custody. Anything above the normal limit comes back to me.'
+  human_input: firstTurn.human_input
 }, { now: '2026-09-27T21:02:00.000Z' });
 assert.equal(replay.replayed, true);
 assert.equal(replay.custody.status, 'REPLAYED');
@@ -143,7 +149,6 @@ assert.ok(!thirdEvent.payload.appended.discovery_gaps);
 // Reducer rejects in-place rewrite attempts hidden inside a later turn event.
 const corrupted = (await store.readEvents('W-STORED')).map(item => structuredClone(item));
 corrupted[2].payload.appended.testimony[0] = {
-  ...corrupted[0].payload.workspace.testimony?.[0],
   testimony_id: 'T-001',
   record_type: 'testimony',
   content: 'rewritten custody history'
@@ -154,5 +159,38 @@ const audit = await freshService.audit('W-STORED');
 assert.equal(audit.workspace_version, 'relay-2');
 assert.equal(audit.testimony_count, 2);
 assert.equal(audit.discovery_observation_count, 2);
+
+// Adapter invariance: the same Relay transition runs through FileStore without changing semantics.
+const fileRoot = await mkdtemp(path.join(tmpdir(), 'atlas-foundry-stored-relay-'));
+try {
+  const fileStore = createFileStore(fileRoot);
+  const fileService = createStoredRelayService(fileStore);
+  const fileWorkspace = structuredClone(workspace);
+  fileWorkspace.workspace_id = 'W-STORED-FILE';
+
+  await fileService.initialize(fileWorkspace, {
+    relay_id: 'R-STORED-FILE',
+    created_at: '2026-09-27T21:00:00.000Z',
+    now: '2026-09-27T21:00:00.000Z'
+  });
+  const fileFirst = await fileService.processTurn('W-STORED-FILE', firstTurn, { now: '2026-09-27T21:01:00.000Z' });
+
+  assert.equal(fileFirst.receipt.discovery.status, first.receipt.discovery.status);
+  assert.equal(fileFirst.receipt.next_question.operator, first.receipt.next_question.operator);
+  assert.equal(fileFirst.receipt.next_question.discovery_lens, first.receipt.next_question.discovery_lens);
+  assert.deepEqual(
+    fileFirst.relay.workspace.discovery_gaps.map(g => [g.discovery_lens, g.operator_hint, g.industry_assumption]),
+    first.relay.workspace.discovery_gaps.map(g => [g.discovery_lens, g.operator_hint, g.industry_assumption])
+  );
+
+  // Reopening both FileStore and Relay service recovers the same durable next question.
+  const reopenedFileService = createStoredRelayService(createFileStore(fileRoot));
+  const reopenedFileContext = await reopenedFileService.resume('W-STORED-FILE', { session_id: 'S-FILE-2' });
+  assert.equal(reopenedFileContext.workspace_version, 'relay-1');
+  assert.equal(reopenedFileContext.next_question.operator, 'BOUND');
+  assert.ok(reopenedFileContext.evidence_refs.includes('T-001'));
+} finally {
+  await rm(fileRoot, { recursive: true, force: true });
+}
 
 console.log('Foundry store-backed Relay self-test passed.');

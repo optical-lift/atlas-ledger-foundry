@@ -21,20 +21,27 @@ const plan = {
     {assertion_id:'A502',description:'Ricardo carries approval authority after the Argentina-stage transition.',basis_refs:['T500'],proposed_disposition:'SCOPE',reason_code:'AUTHORITY_CLARIFIED',disposition_reason:'Testimony introduces a distinct scoped bearer after a transition.',affected_refs:['A300']}
   ],
   candidate_unknowns:[{unknown_id:'U501',description:'What exactly constitutes being "actually in Argentina" for the authority transition?',basis_refs:['T500']}],
-  candidate_contradictions:[],candidate_discrepancies:[{discrepancy_id:'DS501',kind:'SCOPE_DIFFERENCE',existing_refs:['A300'],new_refs:['T500']}],candidate_signals:[],competing_interpretations:[],proposed_dependency_roots:['A300'],created_at:'2026-09-27T18:00:01Z'
+  candidate_contradictions:[],
+  candidate_discrepancies:[{discrepancy_id:'DS501',kind:'SCOPE_DIFFERENCE',description:'New testimony narrows the scope of A300.',existing_refs:['A300'],new_refs:['T500']}],
+  candidate_signals:[],competing_interpretations:[],proposed_dependency_roots:['A300'],created_at:'2026-09-27T18:00:01Z'
 };
 
 const aiResult = processInterpretation(workspace,caseRecord,plan,{authority:'AI_RECOMMENDATION',now:'2026-09-27T18:00:02Z'});
 assert.equal(aiResult.status,'NEEDS_ADJUDICATION');
 assert.equal(aiResult.dispositions.filter(d=>d.type==='SCOPE').every(d=>d.status==='REQUIRES_CONFIRMATION'),true);
 assert.equal(aiResult.dispositions.find(d=>d.type==='OPEN_UNKNOWN').status,'AUTHORIZED');
+assert.equal(aiResult.dispositions.find(d=>d.type==='OPEN_DISCREPANCY').status,'AUTHORIZED');
+assert.ok(aiResult.case.discrepancy_refs.includes('DS501'));
+assert.ok(aiResult.case.finding_refs.includes('F1'));
 assert.equal(aiResult.structural_delta.gain.new_unknown_count,1);
-assert.ok(aiResult.structural_delta.gain.residual_uncertainty_explicit >= 1);
+assert.ok(aiResult.structural_delta.gain.residual_uncertainty_explicit >= 2);
 
 const principalResult = processInterpretation(workspace,caseRecord,plan,{authority:'PRINCIPAL_CONFIRMATION',now:'2026-09-27T18:00:03Z'});
 assert.equal(principalResult.status,'ADJUDICATED');
 assert.equal(principalResult.dispositions.filter(d=>d.type==='SCOPE').every(d=>d.status==='AUTHORIZED'),true);
 assert.ok(principalResult.dependency_impacts.some(i=>i.dependent_ref==='A310' && i.outcome==='REOPEN'));
+assert.ok(principalResult.case.dependency_impact_refs.length > 0);
+assert.ok(principalResult.case.structural_delta_ref);
 assert.ok(principalResult.structural_delta.gain.distinctions_made_explicit >= 2);
 assert.ok(principalResult.structural_delta.gain.dependency_risk_exposed >= 1);
 
@@ -51,5 +58,10 @@ assert.equal(noChange.status,'ADJUDICATED');
 assert.equal(noChange.dispositions[0].type,'NO_CHANGE');
 assert.equal(noChange.dispositions[0].status,'AUTHORIZED');
 assert.ok(noChange.structural_delta.changes.some(c=>c.action==='NO_CHANGE'));
+
+const evidencePlan = {...plan,plan_id:'P800',case_id:'K800',candidate_assertions:[],candidate_unknowns:[],candidate_discrepancies:[],candidate_signals:[],proposed_dispositions:[{type:'REQUEST_MORE_EVIDENCE',reason_code:'INSUFFICIENT_EVIDENCE',reason:'The authority source is still uncorroborated.',basis_refs:['T500'],affected_refs:['A300']}],proposed_dependency_roots:[]};
+const evidenceCase = openCase({workspace_id:'W500',case_id:'K800',testimony_refs:['T500'],topic:'Authority evidence sufficiency'});
+const evidence = processInterpretation(workspace,evidenceCase,evidencePlan,{authority:'AI_RECOMMENDATION'});
+assert.ok(evidence.structural_delta.residual_gaps.some(g=>g.recommended_operator==='TRACE'));
 
 console.log('Foundry answer-processing self-test passed.');

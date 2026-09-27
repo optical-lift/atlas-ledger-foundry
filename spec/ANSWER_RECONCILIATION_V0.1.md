@@ -3,238 +3,155 @@
 **Status:** governing answer-processing contract  
 **Version:** 0.1
 
-Foundry does not treat a new human answer as a replacement truth record. A preserved answer enters a governed three-stage process:
+Foundry does not treat a new human answer as replacement truth. A preserved answer enters:
 
-`preserved testimony → interpretation → adjudication → structural delta`
+`preserved testimony → case → interpretation → adjudication → dependency review → structural delta`
 
-The purpose of this layer is to convert new evidence into safer, more explicit structure without allowing an AI carrier to overwrite current Foundry state merely because a new sentence sounds more recent or more plausible.
+## 1. Invariants
 
-## 1. Governing principles
+1. **Difference is not error.** New information that differs from current representation first becomes a discrepancy unless the lawful relationship is already clear.
+2. **Signal is not assertion.** Weak indications may justify investigation without supporting a proposition.
+3. **Interpretation is not adjudication.** A carrier proposes meaning; governed adjudication decides allowed consequences.
+4. **Adjudication never erases evidence.** Losing evidence and superseded structure remain traceable.
+5. **One answer may have many effects.** It may confirm, narrow, contradict, open unknowns/signals, and reopen dependent structure simultaneously.
+6. **No change is explicit.** Processed testimony that changes no structure receives `NO_CHANGE` plus a reason.
+7. **Changed premises propagate review.** Foundry asks what depended on the changed thing.
+8. **More explicit unknowns can be progress.** Structural gain is not unknown-count reduction.
 
-1. **Difference is not error.** A new answer that differs from existing state first creates a discrepancy or competing interpretation unless the lawful relationship is already clear.
-2. **Signal is not assertion.** Weak or incomplete indications may justify investigation without supporting a proposition.
-3. **Interpretation is not adjudication.** A carrier may propose what testimony could mean. Governed adjudication determines what consequences are allowed.
-4. **Adjudication is not history erasure.** Losing evidence, superseded assertions, contradictions, and prior states remain traceable.
-5. **One answer may have many effects.** It may confirm one fact, narrow another, reveal a contradiction, open an unknown, create a signal, and reopen dependent structure at the same time.
-6. **No change is an explicit disposition.** Processed testimony that does not alter structure receives a reason rather than disappearing silently.
-7. **Changed premises propagate review.** When an established assertion changes, Foundry checks materially dependent assertions rather than patching only the local record.
-8. **More explicit unknowns can be progress.** Structural gain is not measured by minimizing unresolved-record count.
+## 2. Case
 
-## 2. Case container
+A `CASE` groups one consequential answer-processing episode:
 
-Every consequential answer-processing episode may open or join a `CASE`.
-
-A case groups:
-
-- origin testimony/source references;
-- active question/operator context;
+- origin testimony/source refs;
+- question/operator context;
 - findings;
 - discrepancies;
 - signals;
 - competing interpretations;
-- proposed adjudications;
-- dependency impacts;
 - dispositions;
-- resulting structural delta;
+- dependency impacts;
+- structural delta;
 - residual issues;
-- case status and closure basis.
+- closure basis.
 
-A case answers: **Why did Foundry reopen or change this part of reality, and what was ultimately decided?**
+It answers: **Why did Foundry reopen/change this part of reality, and what was decided?**
 
-A case is not an Atlas Ledger and does not create canonical Atlas Reality.
-
-## 3. Stage one — Interpretation
+## 3. Interpretation
 
 Interpretation asks:
 
 > What structural information could this preserved testimony contain?
 
-The carrier may propose:
+A carrier may propose observations, assertions, events/transitions, rules, states, relationships, authorities, responsibilities, commitments, boundaries, identities, discrepancies, signals, competing interpretations, unknowns, contradictions, topology implications, signposts, and dependency roots.
 
-- observations;
-- candidate assertions;
-- candidate events or transitions;
-- candidate rules, boundaries, authorities, responsibilities, commitments, states, identities, or relations;
-- discrepancies against current established structure;
-- signals requiring investigation;
-- competing interpretations;
-- candidate unknowns;
-- candidate contradictions;
-- candidate Ledger-topology implications;
-- candidate signposts;
-- candidate dependency impacts.
-
-Interpretation outputs are proposals. They do not directly mutate assertion stage, closure, topology, or lifecycle state.
+Interpretation proposals do not directly mutate durable truth.
 
 ## 4. Discrepancy
 
 A `DISCREPANCY` records a material difference between new evidence/interpretation and current representation without deciding which side is wrong.
 
-Typical discrepancy kinds include:
+Kinds include:
 
-- `VALUE_DIFFERENCE`;
-- `SCOPE_DIFFERENCE`;
-- `TEMPORAL_DIFFERENCE`;
-- `IDENTITY_DIFFERENCE`;
-- `AUTHORITY_DIFFERENCE`;
-- `STATE_DIFFERENCE`;
-- `RULE_DIFFERENCE`;
-- `COMPLETENESS_DIFFERENCE`;
-- `PROVENANCE_DIFFERENCE`;
-- `OTHER`.
+`VALUE_DIFFERENCE`, `SCOPE_DIFFERENCE`, `TEMPORAL_DIFFERENCE`, `IDENTITY_DIFFERENCE`, `AUTHORITY_DIFFERENCE`, `STATE_DIFFERENCE`, `RULE_DIFFERENCE`, `COMPLETENESS_DIFFERENCE`, `PROVENANCE_DIFFERENCE`, `OTHER`.
 
-A discrepancy may later be adjudicated as correction, scoped coexistence, temporal change, exception, contradiction, no change, or another lawful disposition.
+A discrepancy may later resolve as correction, scoped coexistence, temporal change, exception, contradiction, non-material difference, or no change.
 
 ## 5. Signal
 
-A `SIGNAL` records an indication that reality may have changed or that a material structure deserves investigation when evidence is not yet sufficient for an assertion.
+A `SIGNAL` records an indication that reality may have changed or deserves investigation when evidence is insufficient for an assertion.
 
-Examples:
-
-- "I think Sharon may have started approving some of those herself.";
-- a source begins producing values inconsistent with its historical pattern;
-- a new name repeatedly appears in a role without clear authority;
-- two previously separate fields begin sharing commitments or decision paths.
-
-Signal lifecycle:
+Lifecycle:
 
 `DETECTED → VALIDATED | REFUTED | SUPERSEDED`
 
-A validated signal may open discrepancies, unknowns, contradictions, or candidate assertions. Validation does not itself establish the underlying proposition.
+Validation means the signal warrants further structural work; it does not itself establish the underlying proposition.
 
 ## 6. Competing interpretations
 
-When multiple structures fit the same testimony, Foundry should preserve them explicitly rather than collapsing to the carrier's favorite explanation.
+When multiple structures fit current evidence, preserve them explicitly. Each interpretation should identify claim, basis, conflicting basis, and a discriminator: what observation would separate it from alternatives.
 
-Each competing interpretation must identify:
+Unresolved competing interpretations normally feed `DISCRIMINATE`.
 
-- interpretation ID;
-- concise structural claim;
-- supporting basis refs;
-- conflicting basis refs, if known;
-- what observation would discriminate it from alternatives.
-
-The Question Operator engine should normally use `DISCRIMINATE` against unresolved competing interpretations.
-
-## 7. Stage two — Adjudication
+## 7. Adjudication
 
 Adjudication asks:
 
-> Given current workspace state, evidence, authority, risk, and the interpretation plan, what is each proposed consequence lawfully allowed to do?
+> Given workspace state, evidence, authority, materiality, and risk, what is each proposed consequence lawfully allowed to do?
 
-Allowed disposition types are:
+### Disposition registry
 
-- `CONFIRM`;
-- `SUPERSEDE`;
-- `CORRECT`;
-- `SCOPE`;
-- `TEMPORALIZE`;
-- `CONDITIONALIZE`;
-- `SPLIT`;
-- `MERGE`;
-- `OPEN_UNKNOWN`;
-- `RESOLVE_UNKNOWN`;
-- `PARTIALLY_RESOLVE`;
-- `OPEN_CONTRADICTION`;
-- `RESOLVE_CONTRADICTION`;
-- `OPEN_SIGNAL`;
-- `VALIDATE_SIGNAL`;
-- `REFUTE_SIGNAL`;
-- `REQUEST_MORE_EVIDENCE`;
-- `ESCALATE`;
-- `NO_CHANGE`;
-- `REOPEN`.
+- `CONFIRM`
+- `SUPERSEDE`
+- `CORRECT`
+- `SCOPE`
+- `TEMPORALIZE`
+- `CONDITIONALIZE`
+- `SPLIT`
+- `MERGE`
+- `OPEN_UNKNOWN`
+- `RESOLVE_UNKNOWN`
+- `PARTIALLY_RESOLVE`
+- `OPEN_CONTRADICTION`
+- `RESOLVE_CONTRADICTION`
+- `OPEN_DISCREPANCY`
+- `RESOLVE_DISCREPANCY`
+- `OPEN_SIGNAL`
+- `VALIDATE_SIGNAL`
+- `REFUTE_SIGNAL`
+- `REQUEST_MORE_EVIDENCE`
+- `ESCALATE`
+- `NO_CHANGE`
+- `REOPEN`
 
-Every disposition must contain:
+Every disposition records type, reason code, human-readable reason, basis refs, affected refs, adjudication authority, status, and resulting refs where applicable.
 
-- `disposition_id`;
-- disposition type;
-- reason code;
-- human-readable reason;
-- basis refs;
-- affected refs;
-- adjudication authority/basis;
-- whether the disposition is immediately applicable or requires confirmation/escalation.
+AI recommendation alone is not principal confirmation.
 
-AI recommendation alone is not principal confirmation or adjudication authority.
-
-## 8. Reason codes
-
-Reason codes explain **why** Foundry changed or did not change structure.
+## 8. Reason-code registry
 
 Core reason codes:
 
-- `NEW_INFORMATION`;
-- `SCOPE_CLARIFIED`;
-- `TEMPORAL_CHANGE`;
-- `IDENTITY_SPLIT`;
-- `IDENTITY_MERGE`;
-- `AUTHORITY_CLARIFIED`;
-- `SOURCE_CORRECTED`;
-- `EXCEPTION_DISCOVERED`;
-- `RULE_NOT_CURRENT`;
-- `DUPLICATE_REPRESENTATION`;
-- `CONTRADICTED_BY_HIGHER_AUTHORITY`;
-- `INSUFFICIENT_EVIDENCE`;
-- `NON_MATERIAL_DIFFERENCE`;
-- `ALREADY_REPRESENTED`;
-- `DEPENDENCY_INVALIDATED`;
-- `DEPENDENCY_NEEDS_REVIEW`;
-- `USER_CORRECTION`;
-- `NO_STRUCTURAL_EFFECT`;
-- `OTHER`.
+`NEW_INFORMATION`, `SCOPE_CLARIFIED`, `TEMPORAL_CHANGE`, `IDENTITY_SPLIT`, `IDENTITY_MERGE`, `AUTHORITY_CLARIFIED`, `SOURCE_CORRECTED`, `EXCEPTION_DISCOVERED`, `RULE_NOT_CURRENT`, `DUPLICATE_REPRESENTATION`, `CONTRADICTED_BY_HIGHER_AUTHORITY`, `INSUFFICIENT_EVIDENCE`, `NON_MATERIAL_DIFFERENCE`, `ALREADY_REPRESENTED`, `DEPENDENCY_INVALIDATED`, `DEPENDENCY_NEEDS_REVIEW`, `USER_CORRECTION`, `NO_STRUCTURAL_EFFECT`, `OTHER`.
 
-Human-readable reasons remain required. A reason code is not a substitute for explanation.
+Reason codes support consistent machine handling but never replace a human-readable explanation.
 
-## 9. Dependency impact
+## 9. Conservative versus truth-changing effects
 
-When a materially consequential established assertion is corrected, superseded, split, merged, scoped, temporalized, conditionalized, or materially weakened, Foundry must inspect downstream assertions that depend on it.
+The service may authorize conservative effects that make uncertainty/custody explicit without pretending truth, including:
 
-Possible dependency outcomes:
+- `OPEN_UNKNOWN`;
+- `OPEN_CONTRADICTION`;
+- `OPEN_DISCREPANCY`;
+- `OPEN_SIGNAL`;
+- `REQUEST_MORE_EVIDENCE`;
+- `ESCALATE` as a required higher evidence path;
+- `NO_CHANGE`.
 
-- `UNAFFECTED`;
-- `RECHECK_REQUIRED`;
-- `REOPEN`;
-- `SUPERSEDE`;
-- `BLOCKED_PENDING_PARENT`.
+Truth-changing effects require lawful confirmation/adjudication authority, including confirmation/correction/supersession, scoping/temporalization/conditionalization, split/merge, resolution of uncertainty/conflict/discrepancy/signal, and reopening established dependent structure.
 
-Dependency review must not automatically declare every descendant false. It determines whether the descendant still has sufficient independent basis.
+## 10. Dependency impact
 
-The required question is:
+When a materially consequential established assertion is corrected, superseded, scoped, temporalized, conditionalized, split, merged, reopened, or materially weakened, inspect descendants that depend on it.
 
-> What else depended on the thing that just changed?
+Possible outcomes:
 
-## 10. Stage three — Structural delta
+`UNAFFECTED`, `RECHECK_REQUIRED`, `REOPEN`, `SUPERSEDE`, `BLOCKED_PENDING_PARENT`.
 
-Structural Delta is the explicit result of lawful adjudication.
+Do not automatically declare every descendant false. Determine whether sufficient independent basis remains.
 
-It may contain:
+## 11. Structural delta
 
-- records added;
-- records established/confirmed;
-- records superseded;
-- records reopened;
-- records scoped/temporalized/conditionalized;
-- unknowns opened/resolved/partially resolved;
-- contradictions opened/resolved;
-- signals opened/validated/refuted;
-- dependencies requiring review;
-- signposts added;
-- closure/topology changes proposed or authorized;
-- unchanged records explicitly examined;
-- residual gaps.
+Structural Delta records the lawful result of adjudication without replacing the workspace.
 
-The delta is append-preserving. It never means "replace the workspace with this object."
+It may contain records added/confirmed/superseded/reopened/scoped/temporalized/conditionalized; unknowns/contradictions/discrepancies/signals opened or resolved; dependency impacts; signposts; explicit no-change; and residual gaps.
 
-## 11. Structural gain
+`REQUEST_MORE_EVIDENCE` must leave a residual work item. An authorized request for evidence is not completion.
 
-Structural gain is **increase in explicit, correctly distinguished structure relative to dangerous ambiguity**.
+## 12. Structural gain
 
-It must not be calculated as `old unknown count - new unknown count`.
+Structural gain means **increase in explicit, correctly distinguished structure relative to dangerous ambiguity**.
 
-A productive answer may resolve one vague assertion and create several explicit unknowns. That can be positive structural gain when ambiguity has been decomposed into safer, inspectable distinctions.
-
-Useful gain dimensions include:
+Useful dimensions include:
 
 - dangerous ambiguity reduced;
 - distinctions made explicit;
@@ -242,39 +159,25 @@ Useful gain dimensions include:
 - provenance strengthened;
 - scope/time/condition clarified;
 - competing models separated;
-- silent dependency risk exposed;
+- dependency risk exposed;
 - refresh/signpost learned;
 - closure made more truthful;
 - residual uncertainty made explicit.
 
-## 12. No-change rule
+A vague claim decomposed into three explicit unknowns may be substantial positive gain.
 
-When processed testimony does not change Foundry structure, record a `NO_CHANGE` disposition with a reason such as:
+## 13. No-change rule
 
-- already represented;
-- non-material difference;
-- descriptive detail with no structural effect;
-- insufficient evidence to alter state;
-- information belongs to a different unresolved case/field.
+If testimony produces no structural change, record `NO_CHANGE` with a reason such as `ALREADY_REPRESENTED`, `NON_MATERIAL_DIFFERENCE`, `INSUFFICIENT_EVIDENCE`, or `NO_STRUCTURAL_EFFECT`.
 
 Silence is not a disposition.
 
-## 13. High-consequence adjudication
+## 14. High-consequence adjudication
 
-Critical authority, identity, boundary, commitment, provenance, or safety-sensitive changes may require `ESCALATE` before any structural mutation is applied.
+Critical authority, identity, boundary, commitment, provenance, or other high-consequence changes may require `ESCALATE`, original evidence, authoritative custodian confirmation, independent corroboration, or explicit principal/governed adjudication.
 
-The service may require:
-
-- principal confirmation;
-- original source evidence;
-- authoritative custodian confirmation;
-- independent corroboration;
-- explicit reconciliation/adjudication.
-
-## 14. Answer-processing loop
-
-The complete loop is:
+## 15. Complete loop
 
 `question → preserved answer → case → interpretation plan → discrepancies/signals/competing models → adjudication → dependency impact → structural delta → residual gap → next question`
 
-The next Question Selection pass operates on the resulting durable state, not on the carrier's conversational memory.
+Question Selection operates on the resulting durable state, not model memory.

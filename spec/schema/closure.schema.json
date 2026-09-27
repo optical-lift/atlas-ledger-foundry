@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/optical-lift/atlas-ledger-foundry/spec/schema/closure.schema.json",
+  "title": "Atlas Foundry Closure Record v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "closure_id",
+    "workspace_id",
+    "scope_kind",
+    "scope_key",
+    "state",
+    "evaluated_at"
+  ],
+  "properties": {
+    "closure_id": {"type": "string", "minLength": 1},
+    "workspace_id": {"type": "string", "minLength": 1},
+    "scope_kind": {"type": "string", "enum": ["DOMAIN", "COLLECTION"]},
+    "scope_key": {"type": "string", "minLength": 1},
+    "scope_label": {"type": ["string", "null"]},
+    "state": {
+      "type": "string",
+      "enum": ["CLOSED_COMPLETE", "CLOSED_NONE", "NOT_APPLICABLE", "KNOWN_INCOMPLETE", "UNRESOLVED", "NOT_YET_RECONCILED"]
+    },
+    "material": {"type": "boolean", "default": true},
+    "blocking": {"type": "boolean", "default": false},
+    "basis_refs": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    },
+    "closure_question": {"type": ["string", "null"]},
+    "human_affirmed": {"type": "boolean", "default": false},
+    "remaining_gap": {"type": ["string", "null"]},
+    "evaluated_at": {"type": "string", "format": "date-time"},
+    "supersedes_closure_id": {"type": ["string", "null"]}
+  }
+}

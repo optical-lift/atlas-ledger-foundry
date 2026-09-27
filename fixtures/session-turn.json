@@ -1,0 +1,51 @@
+{
+  "fixture": "session-turn-v0.1",
+  "purpose": "Demonstrate one conversational answer being preserved as testimony before bounded candidate interpretation operations execute.",
+  "session_turn": {
+    "session_id": "SESSION-300",
+    "workspace_id": "W300",
+    "workspace_version": "checkpoint-12",
+    "turn_id": "TURN-301",
+    "received_at": "2026-09-27T17:35:00Z",
+    "question_ref": "A300",
+    "human_input": {
+      "content": "Ricardo can approve them once the team is working in Argentina, but I still handle the U.S. receiving churches.",
+      "representation": "EXACT",
+      "source_locator": null,
+      "testimony_alias": "$turn_testimony"
+    },
+    "proposed_operations": [
+      {
+        "operation": "submit_candidate_assertions",
+        "basis_refs": ["$turn_testimony", "A300"],
+        "payload": {
+          "assertions": [
+            {
+              "kind": "authority_relation",
+              "stage": "CANDIDATE",
+              "interpretation": "Approval authority appears partitioned by operating context: Ricardo for receiving-organization approval once work is in Argentina; the principal for U.S. receiving churches."
+            }
+          ]
+        }
+      },
+      {
+        "operation": "record_unknown",
+        "basis_refs": ["$turn_testimony"],
+        "payload": {
+          "description": "Whether Ricardo's Argentina approval authority is standing authority or delegated authority remains unresolved.",
+          "materiality": "HIGH",
+          "blocking": false
+        }
+      }
+    ],
+    "request_next_context": true,
+    "carrier_note": "The service must create the testimony record first, replace $turn_testimony with its stable ID, then evaluate the proposed operations."
+  },
+  "expected_processing_order": [
+    "record_testimony(human_input)",
+    "bind $turn_testimony to stable testimony_id",
+    "submit_candidate_assertions",
+    "record_unknown",
+    "recompute next session context"
+  ]
+}

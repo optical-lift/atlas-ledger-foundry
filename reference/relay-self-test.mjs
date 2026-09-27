@@ -79,6 +79,73 @@ assert.equal(bad.receipt.discovery.status, 'REJECTED');
 assert.ok(bad.relay.workspace.testimony.some(t => t.testimony_id === 'T-002'));
 assert.ok(!bad.relay.workspace.discovery_observations.some(o => o.observation_id === 'O-BAD'));
 
+// Derived records are not a substitute for preserved source/testimony evidence.
+const derivedOnly = processRelayTurn(turn1.relay, {
+  turn_id: '003',
+  session_id: 'SESSION-B',
+  human_input: 'That boundary is the important part.',
+  discovery_observations: [{
+    observation_id: 'O-DERIVED',
+    discovery_lens: 'SOURCE',
+    description: 'Attempts to ground a new discovery observation only in a prior derived gap.',
+    supporting_refs: ['DG-O-BOUNDARY'],
+    industry_assumption: false
+  }]
+}, { now: '2026-09-27T20:01:30Z' });
+
+assert.equal(derivedOnly.receipt.testimony_preserved, true);
+assert.equal(derivedOnly.receipt.discovery.status, 'REJECTED');
+assert.ok(derivedOnly.receipt.discovery.errors.some(e => /preserved source\/testimony evidence/i.test(e)));
+assert.ok(derivedOnly.relay.workspace.testimony.some(t => t.testimony_id === 'T-003'));
+assert.ok(!derivedOnly.relay.workspace.discovery_observations.some(o => o.observation_id === 'O-DERIVED'));
+
+// Stale carrier context may append testimony but cannot apply discovery or adjudication work.
+const stale = processRelayTurn(turn1.relay, {
+  turn_id: '004',
+  session_id: 'SESSION-STALE',
+  expected_workspace_version: 'relay-0',
+  human_input: 'This answer came from a stale session.',
+  discovery_observations: [{
+    observation_id: 'O-STALE',
+    discovery_lens: 'BOUNDARY',
+    description: 'A stale carrier tries to submit a boundary observation.',
+    supporting_refs: ['$turn_testimony'],
+    industry_assumption: false
+  }],
+  interpretation_plan: {
+    plan_id: 'P-STALE',
+    case_id: 'C-STALE',
+    testimony_refs: ['$turn_testimony'],
+    candidate_unknowns: [{ unknown_id: 'U-STALE', description: 'Should never be applied from stale context.' }]
+  }
+}, { now: '2026-09-27T20:01:45Z' });
+
+assert.equal(stale.receipt.testimony_preserved, true);
+assert.equal(stale.receipt.stale_context, true);
+assert.equal(stale.receipt.discovery.status, 'NOT_SUBMITTED');
+assert.equal(stale.receipt.adjudication.status, 'STALE_CONTEXT');
+assert.ok(stale.relay.workspace.testimony.some(t => t.testimony_id === 'T-004'));
+assert.ok(!stale.relay.workspace.discovery_observations.some(o => o.observation_id === 'O-STALE'));
+assert.ok(!stale.relay.workspace.unknowns.some(u => u.unknown_id === 'U-STALE'));
+
+// A Relay created from an existing Relay checkpoint must not regress its version sequence.
+const checkpointRelay = createMockRelay({
+  workspace_id: 'W-CHECKPOINT',
+  workspace_version: 'relay-7',
+  protocol_version: '0.1',
+  status: 'DISCOVERY',
+  boundary_status: 'PROVISIONAL',
+  provisional_field: 'existing checkpoint'
+}, { relay_id: 'R-CHECKPOINT' });
+
+assert.equal(checkpointRelay.sequence, 7);
+const checkpointTurn = processRelayTurn(checkpointRelay, {
+  turn_id: '008',
+  expected_workspace_version: 'relay-7',
+  human_input: 'Continue from the existing checkpoint.'
+}, { now: '2026-09-27T20:01:50Z' });
+assert.equal(checkpointTurn.receipt.resulting_workspace_version, 'relay-8');
+
 // AI may propose a truth-changing authority interpretation, but Relay must leave it for confirmation.
 const authorityBase = createMockRelay({
   workspace_id: 'W-AUTH',

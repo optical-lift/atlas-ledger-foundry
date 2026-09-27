@@ -106,27 +106,36 @@ The projection must keep stable record IDs so the carrier can cite its basis in 
 
 ## 7. Conversation-turn rule
 
-A user answer enters Foundry in two stages.
+A human answer enters Foundry in two ordered stages.
 
 ### Stage A — preserve testimony
 
-The carrier submits the human's answer through `record_testimony` as exact or recoverable wording whenever practical.
+For a normal `session_turn`, the session processor must preserve `human_input` through the lawful `record_testimony` semantics **before** executing any interpretation operation from that turn.
 
-The preserved testimony receives its own stable record ID.
+The turn supplies a reserved local `testimony_alias` such as `$turn_testimony`. The processor binds that alias to the stable testimony ID created during Stage A.
+
+This means a carrier can propose interpretations in the same turn without guessing the future testimony ID. Any `basis_refs` containing the turn-local alias are resolved to the created testimony record before those operations execute.
+
+If testimony preservation fails, interpretation operations from that turn must not execute.
+
+The preserved testimony should retain exact or recoverable wording whenever practical.
 
 ### Stage B — propose interpretation
 
-Only after the testimony is preserved may the carrier submit structured interpretations through operations such as:
+Only after the testimony alias has been resolved may the carrier's bounded interpretation operations execute, such as:
 
 - `submit_candidate_assertions`;
 - `record_unknown`;
 - `record_contradiction`;
 - `record_ledger_candidate`;
-- `record_acceptance_case`.
+- `record_acceptance_case`;
+- governed reconciliation operations when the carrier has the required authority.
 
-Candidate interpretations must cite the testimony/source records they depend on.
+Candidate interpretations must cite the testimony/source records they depend on, either by stable ID or by the resolved turn-local testimony alias.
 
 The carrier must not rewrite the user's answer into structured truth and discard the original testimony.
+
+A carrier may still call `record_testimony` directly outside the session-turn envelope for source recovery or other governed intake. The automatic Stage A rule applies specifically to a conversational `session_turn`.
 
 ## 8. No whole-workspace replacement
 

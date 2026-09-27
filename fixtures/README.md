@@ -6,7 +6,10 @@ These fixtures are intentionally generic. They are public examples of Foundry en
 - `question-operators.json` — synthetic cases covering all fourteen question operators and the five mandatory inquiry shortcuts.
 - `readiness-fail.json` — boundary, closure, contradiction, topology, and acceptance gates block readiness.
 - `readiness-pass.json` — a non-blocking known unknown survives while readiness passes.
-- `session-resume.json` — a fresh carrier receives the governing orientation, the highest-priority unresolved issue, and only the relevant evidence neighborhood rather than the whole workspace.
-- `session-turn.json` — one human answer is preserved first, bound to a stable testimony ID through a turn-local alias, then used as provenance for bounded candidate operations.
+- `session-resume.json` — a fresh carrier receives the governing orientation, highest-priority unresolved issue, and only the relevant evidence neighborhood.
+- `session-turn.json` — one human answer is preserved first and bound to a stable testimony ID through a turn-local alias.
+- `answer-authority-boundary.json` — scoped authority change pauses for confirmation, opens a new boundary unknown, and rechecks dependent structure.
+- `answer-signal.json` — weak testimony opens a signal rather than prematurely establishing an assertion.
+- `answer-no-change.json` — fully processed testimony can produce explicit `NO_CHANGE` with a reason code rather than disappearing silently.
 
 Private research benchmarks, corrupted kernels, hidden expected structures, and adjudication keys should remain outside this public repository.

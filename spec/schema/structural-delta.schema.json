@@ -1,0 +1,19 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://github.com/optical-lift/atlas-ledger-foundry/spec/schema/structural-delta.schema.json",
+  "title":"Foundry Structural Delta v0.1",
+  "type":"object",
+  "additionalProperties":false,
+  "required":["delta_id","workspace_id","case_id","basis_refs","changes","residual_gaps","gain","created_at"],
+  "properties":{
+    "delta_id":{"type":"string","minLength":1},
+    "workspace_id":{"type":"string","minLength":1},
+    "case_id":{"type":"string","minLength":1},
+    "basis_refs":{"type":"array","minItems":1,"items":{"type":"string"},"uniqueItems":true},
+    "changes":{"type":"array","items":{"type":"object","additionalProperties":false,"required":["action","record_type","record_ref","reason_ref"],"properties":{"action":{"type":"string","enum":["ADD","CONFIRM","SUPERSEDE","REOPEN","SCOPE","TEMPORALIZE","CONDITIONALIZE","SPLIT","MERGE","RESOLVE","PARTIALLY_RESOLVE","OPEN","VALIDATE","REFUTE","NO_CHANGE"]},"record_type":{"type":"string"},"record_ref":{"type":"string"},"reason_ref":{"type":"string"},"result_ref":{"type":["string","null"]}}}},
+    "dependency_impacts":{"type":"array","items":{"type":"string"},"uniqueItems":true},
+    "residual_gaps":{"type":"array","items":{"type":"object","additionalProperties":false,"required":["description","materiality","blocking"],"properties":{"ref":{"type":["string","null"]},"description":{"type":"string"},"materiality":{"type":"string","enum":["LOW","MEDIUM","HIGH","CRITICAL"]},"blocking":{"type":"boolean"},"recommended_operator":{"type":["string","null"]}}}},
+    "gain":{"type":"object","additionalProperties":false,"required":["dangerous_ambiguity_reduced","distinctions_made_explicit","unsupported_certainty_removed","provenance_strengthened","dependency_risk_exposed","residual_uncertainty_explicit","summary"],"properties":{"dangerous_ambiguity_reduced":{"type":"integer","minimum":0},"distinctions_made_explicit":{"type":"integer","minimum":0},"unsupported_certainty_removed":{"type":"integer","minimum":0},"provenance_strengthened":{"type":"integer","minimum":0},"dependency_risk_exposed":{"type":"integer","minimum":0},"residual_uncertainty_explicit":{"type":"integer","minimum":0},"new_unknown_count":{"type":"integer","minimum":0},"resolved_unknown_count":{"type":"integer","minimum":0},"summary":{"type":"string"}}},
+    "created_at":{"type":"string","format":"date-time"}
+  }
+}

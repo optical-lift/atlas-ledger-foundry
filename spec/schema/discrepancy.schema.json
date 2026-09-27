@@ -1,0 +1,23 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://github.com/optical-lift/atlas-ledger-foundry/spec/schema/discrepancy.schema.json",
+  "title":"Foundry Discrepancy v0.1",
+  "type":"object",
+  "additionalProperties":false,
+  "required":["discrepancy_id","workspace_id","case_id","kind","status","existing_refs","new_refs","description","created_at"],
+  "properties":{
+    "discrepancy_id":{"type":"string","minLength":1},
+    "workspace_id":{"type":"string","minLength":1},
+    "case_id":{"type":"string","minLength":1},
+    "kind":{"type":"string","enum":["VALUE_DIFFERENCE","SCOPE_DIFFERENCE","TEMPORAL_DIFFERENCE","IDENTITY_DIFFERENCE","AUTHORITY_DIFFERENCE","STATE_DIFFERENCE","RULE_DIFFERENCE","COMPLETENESS_DIFFERENCE","PROVENANCE_DIFFERENCE","OTHER"]},
+    "status":{"type":"string","enum":["OPEN","RESOLVED","SUPERSEDED","NON_MATERIAL"]},
+    "existing_refs":{"type":"array","items":{"type":"string"},"uniqueItems":true},
+    "new_refs":{"type":"array","minItems":1,"items":{"type":"string"},"uniqueItems":true},
+    "description":{"type":"string","minLength":1},
+    "materiality":{"type":"string","enum":["LOW","MEDIUM","HIGH","CRITICAL"]},
+    "blocking":{"type":"boolean","default":false},
+    "resolution_disposition_ref":{"type":["string","null"]},
+    "created_at":{"type":"string","format":"date-time"},
+    "resolved_at":{"type":["string","null"],"format":"date-time"}
+  }
+}

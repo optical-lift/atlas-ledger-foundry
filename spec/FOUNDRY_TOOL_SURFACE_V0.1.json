@@ -13,6 +13,12 @@
     {"name":"get_next_question","class":"read","authority":"service","writes":false},
     {"name":"record_source","class":"intake","authority":"authorized_carrier","writes":true},
     {"name":"record_testimony","class":"intake","authority":"authorized_carrier","writes":true},
+    {"name":"open_case","class":"answer_processing","authority":"service_or_authorized_carrier","writes":true,"may_establish":false},
+    {"name":"get_case","class":"read","authority":"authorized_carrier","writes":false},
+    {"name":"submit_interpretation_plan","class":"interpretation","authority":"authorized_carrier","writes":true,"may_establish":false},
+    {"name":"request_case_adjudication","class":"adjudication","authority":"authorized_carrier","writes":true,"may_establish":false},
+    {"name":"adjudicate_case","class":"adjudication","authority":"service_or_governed_confirmation","writes":true},
+    {"name":"get_structural_delta","class":"read","authority":"authorized_carrier","writes":false},
     {"name":"submit_candidate_assertions","class":"interpretation","authority":"authorized_carrier","writes":true,"may_establish":false},
     {"name":"record_unknown","class":"interpretation","authority":"authorized_carrier","writes":true},
     {"name":"record_contradiction","class":"interpretation","authority":"authorized_carrier","writes":true},
@@ -36,6 +42,8 @@
     "force_seal",
     "bypass_readiness",
     "rewrite_provenance",
-    "impersonate_principal_confirmation"
+    "impersonate_principal_confirmation",
+    "carrier_apply_structural_delta",
+    "carrier_force_disposition"
   ]
 }

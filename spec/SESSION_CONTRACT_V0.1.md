@@ -7,43 +7,31 @@ A Foundry session is a temporary working encounter between a human principal and
 
 The session is disposable. The Foundry workspace is durable.
 
-The purpose of this contract is to let a completely fresh carrier resume useful work without receiving unrestricted database access, without requiring the human to restate preserved reality, and without allowing the carrier to rewrite the workspace as a monolithic document.
-
 ## 1. Governing principle
 
 **Send the carrier the smallest sufficient governed context for the next material inquiry.**
 
-A session packet is a projection over the workspace. It is not the workspace itself.
-
-The carrier may reason over the projection, ask the human a question, preserve the answer as testimony, and submit candidate interpretations through lawful Foundry operations. It may not replace the durable workspace with its own summary.
+A session packet is a projection over the workspace. It is not the workspace itself. The carrier may reason over the projection, ask the human a question, preserve the answer as testimony, submit an interpretation plan, and request adjudication. It may not replace the durable workspace with its own summary or force a truth-changing disposition.
 
 ## 2. Session start
 
 A new or resumed session receives a `session_context` containing:
 
-- `session_id` — temporary carrier-session identifier;
-- `workspace_id`;
-- `workspace_version` or checkpoint used to construct the context;
-- `protocol_version`;
-- `governing_order_version`;
-- `generated_at`;
-- current workspace lifecycle status;
+- session/workspace/checkpoint/protocol identity;
 - provisional subject and field;
-- boundary status;
-- a compact governing orientation;
+- boundary and lifecycle status;
+- compact governing orientation;
 - current material blockers;
-- relevant established reality for the active inquiry;
+- relevant established reality;
 - relevant unresolved records;
-- relevant evidence/testimony references;
-- primary next question and optional alternates;
-- allowed operation names/scopes for this carrier;
-- context omissions notice describing material categories deliberately not loaded into this packet.
+- relevant evidence/testimony refs;
+- primary next question plus operator metadata and optional alternates;
+- allowed operations/scopes;
+- an omissions notice explaining that the packet is partial.
 
 ## 3. North-star injection
 
-Every carrier must receive enough of the current governing order to preserve the non-negotiable distinctions of Foundry.
-
-At minimum the session orientation must preserve:
+At minimum the carrier must preserve these distinctions:
 
 - function before inherited label;
 - source is not carrier;
@@ -59,150 +47,104 @@ At minimum the session orientation must preserve:
 - a new named thing is not automatically a new Ledger;
 - faithful incompleteness is superior to invented completeness.
 
-A carrier may retrieve fuller governing rules through `get_governing_rule` when needed.
+Private benchmark answers, hidden evaluation controls, and research adjudication keys do not enter the carrier orientation.
 
-The orientation must not include private benchmark answers, hidden evaluation controls, or research adjudication keys.
+## 4. Context selection
 
-## 4. Context-selection rule
+Build the session around the primary question selected by Question Selection and its Question Operator.
 
-A session context should normally be built around the primary question selected by the Question Selection Engine.
-
-For that inquiry, include:
-
-1. the unresolved record that generated the question;
-2. records directly referenced by it;
-3. source/testimony records needed to understand those references;
-4. current established assertions whose interpretation would change depending on the answer;
-5. directly conflicting assertions/testimony;
-6. material closure/topology/acceptance records affected by the answer;
-7. relevant current-position and standing-law assertions needed to avoid category collapse.
+Include the smallest evidence neighborhood needed to avoid category collapse: the target unresolved record, directly referenced records, material source/testimony wording, established assertions whose meaning depends on the answer, conflicts, relevant topology/closure/acceptance records, and required current-state/standing-law distinctions.
 
 Do not load unrelated low-materiality history merely because it exists.
 
 ## 5. Evidence-neighborhood rule
 
-Relevant evidence should be selected by relationship to the inquiry, not by recency alone.
+Relevant evidence is selected by relationship to the inquiry, not recency alone.
 
-The service should prefer exact records over summaries when the exact wording materially affects interpretation.
+Prefer exact records over summaries when exact wording materially affects interpretation. Summaries must retain stable source refs and never replace testimony/evidence.
 
-Summaries may be supplied for context efficiency, but each summary must identify stable source records and must never replace preserved testimony or evidence.
+If material omitted evidence might exist, disclose that limitation and allow `get_relevant_evidence` rather than treating the packet as exhaustive.
 
-If the service cannot determine whether omitted evidence is material to the inquiry, it should disclose that limitation and allow the carrier to request `get_relevant_evidence` rather than silently treating the context as exhaustive.
+## 6. Conversation-turn rule
 
-## 6. Stable reality projection
-
-The session context may include a compact projection of established Foundry assertions.
-
-This projection should prioritize:
-
-- identities and continuity distinctions relevant to the inquiry;
-- authority/responsibility/custody relations;
-- current state relevant to the inquiry;
-- standing law and conditions relevant to the inquiry;
-- Ledger boundaries/topology relevant to the inquiry;
-- active commitments or dependencies relevant to the inquiry.
-
-The projection must keep stable record IDs so the carrier can cite its basis in later operations.
-
-## 7. Conversation-turn rule
-
-A human answer enters Foundry in two ordered stages.
+A normal human answer enters Foundry in three ordered stages.
 
 ### Stage A — preserve testimony
 
-For a normal `session_turn`, the session processor must preserve `human_input` through the lawful `record_testimony` semantics **before** executing any interpretation operation from that turn.
+The session processor preserves `human_input` through `record_testimony` semantics **before** any interpretation/adjudication work from that turn.
 
-The turn supplies a reserved local `testimony_alias` such as `$turn_testimony`. The processor binds that alias to the stable testimony ID created during Stage A.
+The turn supplies a local alias such as `$turn_testimony`. The processor binds it to the created stable testimony ID. If preservation fails, later stages do not execute.
 
-This means a carrier can propose interpretations in the same turn without guessing the future testimony ID. Any `basis_refs` containing the turn-local alias are resolved to the created testimony record before those operations execute.
+### Stage B — interpretation
 
-If testimony preservation fails, interpretation operations from that turn must not execute.
+After the testimony alias resolves, the carrier may submit a bounded `interpretation_plan` describing what the preserved answer **could** structurally mean.
 
-The preserved testimony should retain exact or recoverable wording whenever practical.
+The plan may propose findings, assertions, unknowns, contradictions, discrepancies, signals, competing interpretations, topology implications, signposts, and dependency roots.
 
-### Stage B — propose interpretation
+The carrier may not establish those proposals merely by including them in the plan.
 
-Only after the testimony alias has been resolved may the carrier's bounded interpretation operations execute, such as:
+`difference ≠ correction`
 
-- `submit_candidate_assertions`;
-- `record_unknown`;
-- `record_contradiction`;
-- `record_ledger_candidate`;
-- `record_acceptance_case`;
-- governed reconciliation operations when the carrier has the required authority.
+`signal ≠ assertion`
 
-Candidate interpretations must cite the testimony/source records they depend on, either by stable ID or by the resolved turn-local testimony alias.
+`interpretation ≠ adjudication`
 
-The carrier must not rewrite the user's answer into structured truth and discard the original testimony.
+### Stage C — governed adjudication
 
-A carrier may still call `record_testimony` directly outside the session-turn envelope for source recovery or other governed intake. The automatic Stage A rule applies specifically to a conversational `session_turn`.
+The service evaluates the interpretation/reconciliation plan against current workspace state, provenance, authority, materiality, discrepancies, signals, and dependency structure.
+
+Conservative effects that make uncertainty explicit may be authorized without pretending certainty. Truth-changing effects require lawful confirmation/adjudication authority.
+
+The result is an append-preserving `structural_delta` plus residual gaps. The carrier cannot directly apply that delta or force a disposition.
+
+## 7. Turn-local testimony references
+
+Candidate interpretation records in the same turn may cite `$turn_testimony`. The service resolves the alias to the stable testimony ID before validating basis refs.
+
+This prevents the carrier from inventing future IDs while preserving the rule that interpretation cannot outrun custody.
 
 ## 8. No whole-workspace replacement
 
-A carrier must never be asked to return a complete replacement workspace after every conversational turn.
+A carrier never returns a complete replacement workspace after every turn.
 
-The lawful write pattern is a sequence of bounded operations against stable records.
+The lawful pattern is:
 
-This prevents:
+`workspace projection → testimony → case/interpretation plan → adjudication → bounded delta`
 
-- accidental deletion of records omitted from model context;
-- renumbering stable identity;
-- collapsing unknown into none;
-- overwriting provenance;
-- rewriting contradiction history;
-- one model's summary style becoming durable ontology.
-
-The Baton remains an exception only because it is a portable fallback carrier for the entire state; even there, Baton preservation rules apply.
+This prevents accidental deletion, identity renumbering, unknown-to-none collapse, provenance rewrite, contradiction-history loss, and model-summary style from becoming ontology.
 
 ## 9. Concurrency and stale context
 
-Every session context must identify the workspace version/checkpoint it was built from.
+Every context identifies the workspace version/checkpoint it was built from.
 
-If a carrier submits an operation against materially changed state, the service may:
-
-- accept it when the operation is append-only and still valid;
-- re-evaluate it against the current workspace;
-- return `NEEDS_CONFIRMATION`, `BLOCKED`, or `UNRESOLVED`;
-- require a refreshed session context.
-
-A stale AI context never grants authority to overwrite newer reality.
+If state has materially changed, the service may accept still-valid append-only testimony, re-evaluate proposals, require confirmation, block adjudication, or require refresh. A stale carrier context never gains authority to overwrite newer state.
 
 ## 10. Session resumption
 
-A new carrier or new chat may resume by calling `resume_workspace`.
+A new carrier/chat may call `resume_workspace` without requiring the human to paste prior conversations.
 
-The human should not need to paste the prior conversation or recount already-preserved information.
-
-The returned packet should make it possible for the carrier to say, in ordinary language, approximately:
+The carrier should be able to say, approximately:
 
 > I have the current Foundry state. The most important unresolved issue is X because Y depends on it. Here is the next question.
 
-The carrier should not recite the entire workspace unless the human asks for a review.
+It should not recite the whole workspace unless asked.
 
 ## 11. Session end
 
-The service, not the AI's conversational memory, is responsible for durable continuity.
+Durable continuity belongs to Foundry, not model memory.
 
-At session end there is no required summary upload if all consequential testimony and candidate operations have already been recorded.
+No summary upload is required if consequential testimony, interpretation plans, and governed case results were recorded. Optional session notes remain non-authoritative.
 
-A carrier may optionally record a non-authoritative session note, but it must not substitute for the structured operations performed during the session.
+## 12. Privacy / minimum disclosure
 
-## 12. Privacy/minimum-disclosure rule
-
-The session packet should disclose only workspace information required for the current inquiry and lawful carrier function.
-
-A future authorization layer may further constrain records by sensitivity, role, Ledger field, or source permission.
-
-Carrier convenience is not sufficient reason to disclose the entire Foundry workspace.
+Disclose only workspace information needed for the current inquiry and lawful carrier function. Carrier convenience is not sufficient reason to expose the whole Foundry workspace.
 
 ## 13. Carrier neutrality
 
-The same session contract applies whether the carrier is an external AI, practitioner interface, or Atlas itself.
-
-Provider context windows, memory features, system prompts, and UI conventions are transport details.
+The same contract applies to external AI, practitioner interface, and native Atlas.
 
 The durable invariant is:
 
-`workspace state → governed session projection → human testimony → bounded Foundry operations → updated workspace state`
+`workspace state → governed session projection → preserved testimony → interpretation → adjudication → structural delta → updated workspace state`
 
 The conversation is a working surface. The workspace is custody.

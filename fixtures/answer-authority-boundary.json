@@ -1,0 +1,13 @@
+{
+  "fixture":"answer-authority-boundary-v0.1",
+  "purpose":"One answer narrows authority, exposes a transition boundary unknown, and requires dependency review.",
+  "testimony":{"testimony_id":"T500","content":"Ricardo can approve them once the team is actually in Argentina, but before that I have to approve it."},
+  "existing_assertions":[
+    {"assertion_id":"A300","summary":"David approves receiving organizations."},
+    {"assertion_id":"A310","summary":"Program approval path derived from A300.","depends_on":["A300"]}
+  ],
+  "interpretation":{"proposed_scope_changes":["A300"],"new_unknown":"What exactly constitutes the Argentina-stage transition?"},
+  "expected_ai_result":{"scope_disposition":"REQUIRES_CONFIRMATION","unknown_disposition":"AUTHORIZED"},
+  "expected_principal_result":{"scope_disposition":"AUTHORIZED","dependent_assertion":"REOPEN"},
+  "structural_gain_rule":"The new explicit unknown is information gained, not negative progress."
+}

@@ -1,0 +1,22 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://github.com/optical-lift/atlas-ledger-foundry/spec/schema/reconciliation-plan.schema.json",
+  "title":"Foundry Reconciliation Plan v0.1",
+  "type":"object",
+  "additionalProperties":false,
+  "required":["reconciliation_id","workspace_id","case_id","interpretation_plan_ref","proposed_dispositions","dependency_review_roots","status","created_at"],
+  "properties":{
+    "reconciliation_id":{"type":"string","minLength":1},
+    "workspace_id":{"type":"string","minLength":1},
+    "case_id":{"type":"string","minLength":1},
+    "interpretation_plan_ref":{"type":"string","minLength":1},
+    "proposed_dispositions":{"type":"array","items":{"$ref":"disposition.schema.json"}},
+    "dependency_review_roots":{"type":"array","items":{"type":"string"},"uniqueItems":true},
+    "required_confirmations":{"type":"array","items":{"type":"object","additionalProperties":false,"required":["target_ref","reason"],"properties":{"target_ref":{"type":"string"},"reason":{"type":"string"},"authority_needed":{"type":"string"}}}},
+    "required_evidence":{"type":"array","items":{"type":"object","additionalProperties":false,"required":["reason","target_refs"],"properties":{"reason":{"type":"string"},"target_refs":{"type":"array","items":{"type":"string"},"uniqueItems":true},"suggested_source_kind":{"type":["string","null"]}}}},
+    "status":{"type":"string","enum":["PROPOSED","BLOCKED","NEEDS_CONFIRMATION","READY_FOR_ADJUDICATION","ADJUDICATED","SUPERSEDED"]},
+    "structural_delta_ref":{"type":["string","null"]},
+    "created_at":{"type":"string","format":"date-time"},
+    "adjudicated_at":{"type":["string","null"],"format":"date-time"}
+  }
+}

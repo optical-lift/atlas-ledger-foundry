@@ -1,0 +1,25 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://github.com/optical-lift/atlas-ledger-foundry/spec/schema/interpretation-plan.schema.json",
+  "title":"Foundry Interpretation Plan v0.1",
+  "type":"object",
+  "additionalProperties":false,
+  "required":["plan_id","workspace_id","case_id","testimony_refs","findings","candidate_assertions","candidate_unknowns","candidate_contradictions","candidate_discrepancies","candidate_signals","competing_interpretations","created_at"],
+  "properties":{
+    "plan_id":{"type":"string","minLength":1},
+    "workspace_id":{"type":"string","minLength":1},
+    "case_id":{"type":"string","minLength":1},
+    "question_ref":{"type":["string","null"]},
+    "question_operator":{"type":["string","null"]},
+    "testimony_refs":{"type":"array","minItems":1,"items":{"type":"string"},"uniqueItems":true},
+    "findings":{"type":"array","items":{"type":"object","additionalProperties":false,"required":["finding_id","kind","description","basis_refs"],"properties":{"finding_id":{"type":"string"},"kind":{"type":"string","enum":["OBSERVATION","FUNCTION","RELATION","EVENT","STATE","RULE","AUTHORITY","RESPONSIBILITY","BOUNDARY","IDENTITY","COMMITMENT","SIGNPOST","OTHER"]},"description":{"type":"string"},"basis_refs":{"type":"array","minItems":1,"items":{"type":"string"},"uniqueItems":true}}}},
+    "candidate_assertions":{"type":"array","items":{"type":"object"}},
+    "candidate_unknowns":{"type":"array","items":{"type":"object"}},
+    "candidate_contradictions":{"type":"array","items":{"type":"object"}},
+    "candidate_discrepancies":{"type":"array","items":{"type":"object"}},
+    "candidate_signals":{"type":"array","items":{"type":"object"}},
+    "competing_interpretations":{"type":"array","items":{"type":"object","additionalProperties":false,"required":["interpretation_id","claim","basis_refs"],"properties":{"interpretation_id":{"type":"string"},"claim":{"type":"string"},"basis_refs":{"type":"array","items":{"type":"string"},"uniqueItems":true},"conflicting_refs":{"type":"array","items":{"type":"string"},"uniqueItems":true},"discriminator":{"type":["string","null"]}}}},
+    "proposed_dependency_roots":{"type":"array","items":{"type":"string"},"uniqueItems":true},
+    "created_at":{"type":"string","format":"date-time"}
+  }
+}

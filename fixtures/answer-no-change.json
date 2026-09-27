@@ -1,0 +1,7 @@
+{
+  "fixture":"answer-no-change-v0.1",
+  "purpose":"Processed testimony that changes no structure still receives an explicit disposition and reason.",
+  "testimony":{"testimony_id":"T700","content":"Yes, David is the one who approves those before the trip."},
+  "existing":{"assertion_id":"A700","summary":"David approves before trip stage."},
+  "expected":{"disposition":"NO_CHANGE","reason_code":"ALREADY_REPRESENTED","silent_drop":false}
+}

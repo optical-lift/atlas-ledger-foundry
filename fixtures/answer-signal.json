@@ -1,0 +1,6 @@
+{
+  "fixture":"answer-signal-v0.1",
+  "purpose":"Weak testimony opens a signal rather than prematurely establishing an assertion.",
+  "testimony":{"testimony_id":"T600","content":"I think Sharon may have started approving some of those herself."},
+  "expected":{"signal_status":"DETECTED","assertion_established":false,"next_operator":"DISCRIMINATE_OR_VERIFY"}
+}

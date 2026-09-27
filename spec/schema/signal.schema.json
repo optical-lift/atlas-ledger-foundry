@@ -1,0 +1,24 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://github.com/optical-lift/atlas-ledger-foundry/spec/schema/signal.schema.json",
+  "title":"Foundry Signal v0.1",
+  "type":"object",
+  "additionalProperties":false,
+  "required":["signal_id","workspace_id","case_id","status","description","basis_refs","materiality","created_at"],
+  "properties":{
+    "signal_id":{"type":"string","minLength":1},
+    "workspace_id":{"type":"string","minLength":1},
+    "case_id":{"type":"string","minLength":1},
+    "status":{"type":"string","enum":["DETECTED","VALIDATED","REFUTED","SUPERSEDED"]},
+    "description":{"type":"string","minLength":1},
+    "subject_ref":{"type":["string","null"]},
+    "basis_refs":{"type":"array","minItems":1,"items":{"type":"string"},"uniqueItems":true},
+    "materiality":{"type":"string","enum":["LOW","MEDIUM","HIGH","CRITICAL"]},
+    "blocking":{"type":"boolean","default":false},
+    "validation_question":{"type":["string","null"]},
+    "validation_basis_refs":{"type":"array","items":{"type":"string"},"uniqueItems":true},
+    "resolution_disposition_ref":{"type":["string","null"]},
+    "created_at":{"type":"string","format":"date-time"},
+    "resolved_at":{"type":["string","null"],"format":"date-time"}
+  }
+}

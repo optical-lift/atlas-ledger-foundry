@@ -17,202 +17,177 @@ The workspace must preserve enough structure that a completely different qualifi
 
 A Foundry Workspace may contain:
 
-- source material;
-- raw testimony;
-- candidate entities, relations, events, states, rules, authorities, responsibilities, commitments, and boundaries;
-- reconciled assertions;
-- contradictions;
-- known unknowns;
+- source material and raw testimony;
+- candidate and reconciled assertions;
+- contradictions and known unknowns;
 - closure state;
 - Ledger candidates;
-- acceptance scenarios and results;
-- correction and supersession history.
+- acceptance scenarios/results;
+- adjudication cases;
+- interpretation and reconciliation plans;
+- discrepancies and signals;
+- dispositions with reason codes;
+- dependency-impact records;
+- structural deltas;
+- correction/supersession history.
 
 It must not itself create canonical Atlas Reality.
 
-No record becomes an active Atlas Ledger merely because it is present in a Foundry Workspace.
-
-Promotion requires a separate seal/validation/admission operation.
+No record becomes an active Atlas Ledger merely because it is present in a Foundry Workspace. Promotion requires a separate seal/validation/admission operation.
 
 ## 3. Required workspace identity
 
 Every workspace must carry:
 
-- `workspace_id` — stable identifier;
-- `protocol_version` — Foundry protocol version in force;
-- `owner_principal_id` — identity of the human principal or free Foundry account that owns the workspace;
-- `status` — current Foundry lifecycle state;
-- `created_at`;
-- `updated_at`;
-- `as_of` — the current-position time the workspace is attempting to reconcile;
-- `provisional_subject` — what person, organization, household, institution, or other subject appears to anchor the field;
-- `provisional_field` — ordinary-language description of the reality under inquiry;
-- `boundary_status` — whether that field is unresolved, provisional, or sufficiently bounded for readiness review.
+- `workspace_id`;
+- `protocol_version`;
+- `owner_principal_id`;
+- lifecycle `status`;
+- `created_at`, `updated_at`, and current-position `as_of` where known;
+- `provisional_subject`;
+- `provisional_field`;
+- `boundary_status`.
 
 ## 4. Workspace lifecycle
 
 Allowed lifecycle states are:
 
-- `DISCOVERY` — evidence and testimony are still being broadly recovered;
-- `RECONCILIATION` — candidate structure is being confirmed, corrected, split, joined, or retired;
-- `CLOSURE` — Foundry is explicitly testing whether material domains and collections are accounted for;
-- `ACCEPTANCE` — Foundry is pressure-testing operation and transition behavior;
-- `READY_TO_SEAL` — all blocking readiness conditions currently pass;
-- `SEALED` — a fixed Ledger candidate release has been created;
-- `SUPERSEDED` — this workspace/release has been replaced by a later controlled version;
-- `ABANDONED` — the principal intentionally stopped this Foundry without sealing.
+- `DISCOVERY`;
+- `RECONCILIATION`;
+- `CLOSURE`;
+- `ACCEPTANCE`;
+- `READY_TO_SEAL`;
+- `SEALED`;
+- `SUPERSEDED`;
+- `ABANDONED`.
 
 Changing lifecycle state does not erase prior records.
 
-## 5. Record classes
-
-The workspace contains append-preserving record classes.
+## 5. Core record classes
 
 ### Sources
 
-A source identifies where evidence came from: document, spreadsheet, software export, message history, prior AI work, database, audio, image, external system, human testimony session, or other witness.
-
-A source is not itself an assertion of present reality.
+Identify where evidence came from. A source is not itself an assertion of present reality.
 
 ### Testimony
 
-Testimony preserves what a human or source said or represented before interpretation is promoted.
-
-Testimony should preserve original wording or a recoverable reference to it where practical.
+Preserves what a human/source said or represented before interpretation is promoted. Original or recoverable wording is preferred.
 
 ### Assertions
 
-Assertions are structured claims about reality or governing structure.
+Structured claims about reality/governing structure. Foundry distinguishes at minimum:
 
-Every assertion must carry a stage/status. At minimum Foundry must distinguish:
+`CANDIDATE`, `NEEDS_CLARIFICATION`, `ESTABLISHED`, `CONFLICTED`, `SUPERSEDED`, `RETIRED`, `REJECTED`.
 
-- `CANDIDATE`;
-- `NEEDS_CLARIFICATION`;
-- `ESTABLISHED`;
-- `CONFLICTED`;
-- `SUPERSEDED`;
-- `RETIRED`;
-- `REJECTED`.
-
-`ESTABLISHED` means established for the Foundry baseline under the available authority and evidence. It still does not mean admitted to canonical Atlas Reality.
+Foundry `ESTABLISHED` is still pre-Atlas.
 
 ### Unknowns
 
-Unknowns are explicit unresolved conditions.
-
-An unknown should identify what is unknown, why it matters, and whether it blocks readiness.
+Explicit unresolved conditions, including materiality and readiness-blocking status.
 
 ### Contradictions
 
-Contradictions preserve materially incompatible testimony or assertions until actually reconciled.
-
-Resolving a contradiction must not delete the earlier record.
+Materially incompatible testimony/assertions retained until actually reconciled. Resolution never deletes the earlier evidence.
 
 ### Closure records
 
-Closure records state whether a material domain or collection has been explicitly reconciled.
-
-Blank or absent closure is never equivalent to complete.
+Explicitly state whether a material domain/collection is complete, none, not applicable, incomplete, unresolved, or not yet reconciled. Blank is never complete.
 
 ### Ledger candidates
 
-A Ledger candidate is a possible separately governable field discovered during Foundry.
-
-It remains a candidate until topology work determines whether it is:
-
-- a separate Ledger;
-- part of the current Ledger;
-- a related external entity/field;
-- not materially relevant;
-- unresolved.
+Possible separately governable fields preserved until topology adjudication.
 
 ### Acceptance cases
 
-Acceptance cases describe scenarios used to test whether the candidate Ledger can interpret consequential events, transitions, authority, constraints, exceptions, and outcomes.
+Pressure-test interpretation of consequential events, transitions, authority, constraints, exceptions, and outcomes.
 
-## 6. Provenance invariant
+## 6. Answer-processing record classes
 
-Every materially consequential assertion must be traceable to one or more of:
+### Adjudication cases
 
-- testimony records;
-- source records;
-- prior established assertions plus an explicit derivation;
-- a human confirmation/correction event;
-- a governed reconciliation operation.
+A `CASE` groups one consequential answer-processing episode so Foundry can reconstruct why a part of reality changed or reopened.
 
-An AI-generated interpretation with no preserved basis may remain a candidate but may not become established merely because it is plausible.
+### Interpretation plans
 
-## 7. History invariant
+Carrier-generated proposals describing what preserved testimony **could** mean. They have no independent establishment authority.
+
+### Discrepancies
+
+Represent differences between current structure and new evidence without deciding which representation is wrong.
+
+`difference ≠ correction`
+
+### Signals
+
+Represent indications that something may have changed or requires investigation when evidence is not yet sufficient for an assertion.
+
+`signal ≠ assertion`
+
+### Reconciliation plans and dispositions
+
+Describe proposed/adjudicated consequences. Every disposition records type, reason code, explanation, basis, affected records, authority, and status.
+
+### Dependency impacts
+
+Record what downstream assertions must be rechecked when a premise changes. Changed premises do not automatically make every descendant false.
+
+### Structural deltas
+
+Append-preserving descriptions of the lawful consequences of adjudication: added/confirmed/superseded/reopened/scoped records, opened/resolved uncertainty, dependency impacts, explicit no-change, and residual gaps.
+
+A structural delta is not a replacement workspace.
+
+## 7. Provenance invariant
+
+Every materially consequential assertion must be traceable to testimony, source evidence, established derivation, human confirmation/correction, or governed reconciliation.
+
+An AI-generated interpretation without preserved basis may remain a candidate but cannot become established merely because it is plausible.
+
+## 8. History invariant
 
 Foundry history is append-preserving.
 
-Corrections should be represented as controlled supersession or reconciliation, not silent mutation of the historical record.
+It must remain possible to reconstruct:
 
-Where a current projection is needed, the service may compute the latest valid view, but it must remain possible to reconstruct:
+`source/testimony → interpretation → discrepancy/signal/candidate → adjudication → disposition → structural delta → established/current projection → later supersession`
 
-`source/testimony → candidate → clarification/correction → established result → later supersession`
+## 9. Identity invariant
 
-## 8. Identity invariant
+Stable record IDs survive carrier changes. Similarity, shared name, shared role, shared content, or shared outcome do not establish identity.
 
-Stable record IDs must survive carrier changes.
+## 10. Current position versus standing law
 
-A different AI may improve an interpretation, but it must not renumber existing entities/assertions merely for neatness.
+The workspace keeps standing law, current state/position, and state-changing events distinct. A one-time occurrence must not silently overwrite a standing rule.
 
-Similarity, shared name, shared role, shared content, or shared outcome do not by themselves establish identity.
+## 11. Structural-gain invariant
 
-## 9. Current position versus standing law
+Progress is not measured by reducing the count of unknowns.
 
-The workspace must preserve separate representations for:
+A new answer may improve the model by splitting dangerous ambiguity into several explicit unknowns, competing interpretations, or dependency questions.
 
-- standing law / rule / conditional expectation;
-- current state / position / active condition;
-- event / occurrence that changed or may change state.
+Structural gain means more explicit, correctly distinguished structure relative to unsafe ambiguity.
 
-A carrier must not overwrite standing law with a one-time event or infer that a normal rule occurred merely because it was expected.
+## 12. Readiness
 
-## 10. Readiness
+A workspace becomes `READY_TO_SEAL` only when the governing readiness review passes boundary, closure, current-position, authority, contradiction, unknown, transition, acceptance, topology, provenance, and other material gates.
 
-A workspace may become `READY_TO_SEAL` only when the governing readiness review confirms at minimum:
+Open adjudication cases, unresolved high-materiality discrepancies/signals, or dependency impacts may block readiness when they affect the baseline materially.
 
-- boundary sufficiently resolved;
-- no material domain remains silently unreconciled;
-- current position sufficiently reconciled;
-- authority and responsibility sufficient for the field;
-- blocking contradictions resolved;
-- blocking unknowns eliminated or reclassified as non-blocking known unknowns;
-- material state transitions interpretable;
-- acceptance cases pass at the required level;
-- Ledger topology does not contain an unresolved blocking split/merge problem.
+The workspace may not self-certify readiness merely because an AI says it is complete.
 
-The workspace itself may not self-certify readiness merely because an AI says it is complete.
+## 13. Seal
 
-## 11. Seal
+Sealing creates a fixed release containing the reconciled subject/field, boundary, established assertions, current position, standing law, authority/responsibility, commitments, known unknowns, closure register, acceptance results, provenance, release identity, and required adjudication history.
 
-Sealing creates a fixed release containing:
+After sealing, later changes belong to a controlled version or ongoing Foundry delta.
 
-- protocol version;
-- subject and field;
-- boundary declaration;
-- established assertions included in the release;
-- current-position snapshot;
-- standing-law set;
-- authority/responsibility set;
-- commitments;
-- known unknowns;
-- explicit closure register;
-- acceptance results;
-- provenance references;
-- release identifier and timestamp.
-
-After sealing, further changes belong to a new controlled version or ongoing Foundry delta.
-
-## 12. Carrier independence
+## 14. Carrier independence
 
 The same workspace semantics must be supportable by:
 
-- a manual Baton;
-- a remote Foundry Service;
-- a human practitioner tool;
+- manual Baton;
+- remote Foundry Service;
+- human practitioner tool;
 - native Atlas onboarding.
 
-No carrier may redefine the meaning of the records for convenience.
+No carrier may redefine record meaning for convenience.

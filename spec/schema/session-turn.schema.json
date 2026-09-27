@@ -4,62 +4,23 @@
   "title": "Foundry Session Turn v0.1",
   "type": "object",
   "additionalProperties": false,
-  "required": [
-    "session_id",
-    "workspace_id",
-    "workspace_version",
-    "turn_id",
-    "received_at",
-    "human_input",
-    "proposed_operations"
+  "required": ["session_id","workspace_id","workspace_version","turn_id","received_at","human_input"],
+  "anyOf": [
+    {"required":["interpretation_plan"]},
+    {"required":["proposed_operations"],"properties":{"proposed_operations":{"minItems":1}}}
   ],
   "properties": {
-    "session_id": {"type": "string", "minLength": 1},
-    "workspace_id": {"type": "string", "minLength": 1},
-    "workspace_version": {"type": "string", "minLength": 1},
-    "turn_id": {"type": "string", "minLength": 1},
-    "received_at": {"type": "string", "format": "date-time"},
-    "question_ref": {"type": ["string", "null"]},
-    "human_input": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["content", "representation", "testimony_alias"],
-      "properties": {
-        "content": {"type": "string", "minLength": 1},
-        "representation": {"type": "string", "enum": ["EXACT", "RECOVERABLE_EXACT", "PARAPHRASE"]},
-        "source_locator": {"type": ["string", "null"]},
-        "testimony_alias": {"type": "string", "pattern": "^\\$[A-Za-z][A-Za-z0-9_-]*$"}
-      }
-    },
-    "proposed_operations": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": ["operation", "payload"],
-        "properties": {
-          "operation": {
-            "type": "string",
-            "enum": [
-              "submit_candidate_assertions",
-              "record_unknown",
-              "record_contradiction",
-              "record_ledger_candidate",
-              "record_acceptance_case",
-              "confirm_assertion",
-              "correct_assertion",
-              "resolve_contradiction",
-              "update_closure",
-              "classify_ledger_candidate",
-              "record_acceptance_result"
-            ]
-          },
-          "basis_refs": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
-          "payload": {"type": "object"}
-        }
-      }
-    },
-    "request_next_context": {"type": "boolean", "default": true},
-    "carrier_note": {"type": ["string", "null"]}
+    "session_id":{"type":"string","minLength":1},
+    "workspace_id":{"type":"string","minLength":1},
+    "workspace_version":{"type":"string","minLength":1},
+    "turn_id":{"type":"string","minLength":1},
+    "received_at":{"type":"string","format":"date-time"},
+    "question_ref":{"type":["string","null"]},
+    "case_id":{"type":["string","null"]},
+    "human_input":{"type":"object","additionalProperties":false,"required":["content","representation","testimony_alias"],"properties":{"content":{"type":"string","minLength":1},"representation":{"type":"string","enum":["EXACT","RECOVERABLE_EXACT","PARAPHRASE"]},"source_locator":{"type":["string","null"]},"testimony_alias":{"type":"string","pattern":"^\\$[A-Za-z][A-Za-z0-9_-]*$"}}},
+    "interpretation_plan":{"$ref":"interpretation-plan.schema.json"},
+    "proposed_operations":{"type":"array","items":{"type":"object","additionalProperties":false,"required":["operation","payload"],"properties":{"operation":{"type":"string","enum":["open_case","submit_interpretation_plan","request_case_adjudication","submit_candidate_assertions","record_unknown","record_contradiction","record_ledger_candidate","record_acceptance_case","confirm_assertion","correct_assertion","resolve_contradiction","update_closure","classify_ledger_candidate","record_acceptance_result"]},"basis_refs":{"type":"array","items":{"type":"string"},"uniqueItems":true},"payload":{"type":"object"}}}},
+    "request_next_context":{"type":"boolean","default":true},
+    "carrier_note":{"type":["string","null"]}
   }
 }

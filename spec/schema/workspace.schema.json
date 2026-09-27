@@ -84,13 +84,15 @@
         "properties": {
           "unknown_id": {"type": "string", "minLength": 1},
           "subject_ref": {"type": ["string", "null"]},
+          "subject_label": {"type": ["string", "null"]},
           "domain": {"type": ["string", "null"]},
           "description": {"type": "string", "minLength": 1},
           "materiality": {"type": "string", "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"]},
           "blocking": {"type": "boolean"},
           "status": {"type": "string", "enum": ["OPEN", "RESOLVED", "SUPERSEDED", "NOT_APPLICABLE"]},
           "resolution_condition": {"type": ["string", "null"]},
-          "basis_refs": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+          "basis_refs": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+          "inquiry": {"$ref": "inquiry-hint.schema.json"}
         }
       }
     },
@@ -106,6 +108,7 @@
           "description": {"type": ["string", "null"]},
           "status": {"type": "string", "enum": ["OPEN", "RESOLVED", "SUPERSEDED"]},
           "blocking": {"type": "boolean"},
+          "materiality": {"type": "string", "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"], "default": "HIGH"},
           "resolution_ref": {"type": ["string", "null"]}
         }
       }
@@ -126,10 +129,12 @@
         "required": ["case_id", "scenario", "status"],
         "properties": {
           "case_id": {"type": "string", "minLength": 1},
+          "subject_label": {"type": ["string", "null"]},
           "scenario": {"type": "string", "minLength": 1},
           "expected_behavior": {"type": ["string", "null"]},
           "observed_behavior": {"type": ["string", "null"]},
           "status": {"type": "string", "enum": ["NOT_RUN", "PASS", "FAIL", "UNRESOLVED"]},
+          "required": {"type": "boolean", "default": true},
           "basis_refs": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
         }
       }
@@ -145,6 +150,7 @@
           "question": {"type": "string", "minLength": 1},
           "reason": {"type": "string", "minLength": 1},
           "priority": {"type": "integer", "minimum": 1},
+          "operator": {"type": ["string", "null"]},
           "related_refs": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
         }
       }

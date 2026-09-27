@@ -24,7 +24,7 @@ const CORE_RULES = [
 ];
 
 function stableId(record) {
-  return record?.assertion_id ?? record?.testimony_id ?? record?.source_id ?? record?.unknown_id ?? record?.contradiction_id ?? record?.closure_id ?? record?.ledger_candidate_id ?? record?.case_id ?? record?.id ?? null;
+  return record?.assertion_id ?? record?.testimony_id ?? record?.source_id ?? record?.observation_id ?? record?.unknown_id ?? record?.contradiction_id ?? record?.closure_id ?? record?.ledger_candidate_id ?? record?.case_id ?? record?.id ?? null;
 }
 
 function recordBasisRefs(record) {
@@ -48,6 +48,7 @@ export function collectRelevantRecords(workspace, relatedRefs = []) {
   const collections = [
     ...(workspace.sources ?? []),
     ...(workspace.testimony ?? []),
+    ...(workspace.discovery_observations ?? []),
     ...(workspace.discovery_gaps ?? []),
     ...(workspace.assertions ?? []),
     ...(workspace.unknowns ?? []),

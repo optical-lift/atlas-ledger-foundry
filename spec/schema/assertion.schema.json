@@ -26,6 +26,7 @@
       "enum": ["CANDIDATE", "NEEDS_CLARIFICATION", "ESTABLISHED", "CONFLICTED", "SUPERSEDED", "RETIRED", "REJECTED"]
     },
     "subject_ref": {"type": "string", "minLength": 1},
+    "subject_label": {"type": ["string", "null"]},
     "predicate": {"type": "string", "minLength": 1},
     "object_ref": {"type": ["string", "null"]},
     "value": {},
@@ -38,7 +39,9 @@
       "enum": [null, "ACTUAL", "REQUIRED", "PERMITTED", "PROHIBITED", "POSSIBLE", "EXPECTED", "CONDITIONAL"]
     },
     "confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "materiality": {"type": "string", "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"], "default": "MEDIUM"},
     "blocking": {"type": "boolean", "default": false},
+    "inquiry": {"$ref": "inquiry-hint.schema.json"},
     "provenance": {
       "type": "object",
       "additionalProperties": false,

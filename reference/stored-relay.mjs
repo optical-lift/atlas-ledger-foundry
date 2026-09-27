@@ -173,7 +173,7 @@ function makeTurnEvent(beforeRelay, afterRelay, turn, storeSequence, options = {
     basis_refs: deriveBasisRefs(appended),
     authority: 'SERVICE_RULE',
     actor_kind: 'FOUNDRY_SERVICE',
-    recorded_at: options.now ?? receipt?.resulting_at ?? receipt?.captured_at ?? '1970-01-01T00:00:00.000Z',
+    recorded_at: options.now ?? '1970-01-01T00:00:00.000Z',
     protocol_version: afterRelay.workspace.protocol_version ?? '0.1'
   });
 }
@@ -283,6 +283,12 @@ export function createStoredRelayService(storeInput) {
     return { relay, events };
   }
 
+  async function loadRelay(workspaceId) {
+    const { relay } = await loadWithEvents(workspaceId);
+    if (!relay) throw new Error(`workspace ${workspaceId} is not initialized`);
+    return relay;
+  }
+
   return {
     async initialize(workspace, options = {}) {
       return serialize(async () => {
@@ -303,13 +309,11 @@ export function createStoredRelayService(storeInput) {
     },
 
     async load(workspaceId) {
-      const { relay } = await loadWithEvents(workspaceId);
-      if (!relay) throw new Error(`workspace ${workspaceId} is not initialized`);
-      return relay;
+      return loadRelay(workspaceId);
     },
 
     async resume(workspaceId, options = {}) {
-      const relay = await this.load(workspaceId);
+      const relay = await loadRelay(workspaceId);
       return resumeRelay(relay, options);
     },
 
@@ -342,7 +346,7 @@ export function createStoredRelayService(storeInput) {
     },
 
     async audit(workspaceId) {
-      const relay = await this.load(workspaceId);
+      const relay = await loadRelay(workspaceId);
       return relayAudit(relay);
     },
 

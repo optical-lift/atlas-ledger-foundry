@@ -1,5 +1,5 @@
 export const OPERATOR_NAMES = Object.freeze([
-  'NARRATE','GATE','DISCRIMINATE','TRACE','INVERT','VERIFY','DEFINE_BY_FUNCTION','BOUND','TRIGGER','EXCEPTION','COUNTERFACTUAL','SIGNPOST','CLOSE','ESCALATE'
+  'NARRATE','GATE','DISCRIMINATE','TRACE','INVERT','VERIFY','DEFINE_BY_FUNCTION','BOUND','TRIGGER','EXCEPTION','REPAIR','COUNTERFACTUAL','SIGNPOST','CLOSE','ESCALATE'
 ]);
 
 export const QUESTION_OPERATORS = Object.freeze({
@@ -11,8 +11,9 @@ export const QUESTION_OPERATORS = Object.freeze({
   VERIFY: { structural_job: 'Reflect a candidate interpretation to an authorized human or source for correction or confirmation.', expected_gain: 'governed_confirmation', next_operators: ['CLOSE','SIGNPOST','TRACE'] },
   DEFINE_BY_FUNCTION: { structural_job: 'Replace an inherited label with what the thing actually does, changes, permits, blocks, or carries.', expected_gain: 'functional_definition', next_operators: ['BOUND','TRIGGER','DISCRIMINATE'] },
   BOUND: { structural_job: 'Establish where a claim, role, rule, identity, or authority starts and stops across time, place, object, subject, or jurisdiction.', expected_gain: 'scope_boundary', next_operators: ['TRIGGER','EXCEPTION','VERIFY'] },
-  TRIGGER: { structural_job: 'Find the event or condition that changes state and what becomes possible, required, or prohibited afterward.', expected_gain: 'state_transition', next_operators: ['EXCEPTION','SIGNPOST','VERIFY'] },
-  EXCEPTION: { structural_job: 'Find the conditions under which an established rule does not apply, changes, or may be overridden.', expected_gain: 'exception_semantics', next_operators: ['BOUND','VERIFY','SIGNPOST'] },
+  TRIGGER: { structural_job: 'Find the event or condition that changes state and what becomes possible, required, or prohibited afterward.', expected_gain: 'state_transition', next_operators: ['EXCEPTION','REPAIR','SIGNPOST','VERIFY'] },
+  EXCEPTION: { structural_job: 'Find the conditions under which an established rule does not apply, changes, or may be overridden.', expected_gain: 'exception_semantics', next_operators: ['BOUND','REPAIR','VERIFY','SIGNPOST'] },
+  REPAIR: { structural_job: 'Determine how a breached, failed, invalid, rejected, or damaged state is lawfully restored and how restoration is verified.', expected_gain: 'restoration_path', next_operators: ['TRACE','VERIFY','SIGNPOST'] },
   COUNTERFACTUAL: { structural_job: 'Ask what would have to be observed for the current model, assumption, or interpretation to be wrong.', expected_gain: 'falsification_condition', next_operators: ['DISCRIMINATE','SIGNPOST','TRACE'] },
   SIGNPOST: { structural_job: 'Identify the future observable event that should cause Atlas to re-evaluate an established claim.', expected_gain: 'refresh_trigger', next_operators: ['TRIGGER','VERIFY'] },
   CLOSE: { structural_job: 'Explicitly classify a material domain or collection as complete, none, not applicable, known incomplete, or unresolved.', expected_gain: 'explicit_closure', next_operators: [] },
@@ -39,12 +40,14 @@ function coreOperator(candidate) {
   if (candidate.type === 'boundary' || candidate.type === 'authority' || uncertainty === 'scope' || candidate.needs_scope === true) return 'BOUND';
   if (candidate.type === 'transition' || uncertainty === 'trigger' || candidate.needs_trigger === true) return 'TRIGGER';
   if (candidate.type === 'exception' || uncertainty === 'exception' || candidate.needs_exception === true) return 'EXCEPTION';
+  if (candidate.type === 'repair' || uncertainty === 'repair' || candidate.needs_repair === true) return 'REPAIR';
   if (candidate.type === 'counterfactual' || candidate.type === 'acceptance' || uncertainty === 'assumption') return 'COUNTERFACTUAL';
   if (candidate.type === 'signpost' || uncertainty === 'refresh' || candidate.needs_signpost === true) return 'SIGNPOST';
   if (candidate.type === 'closure') return 'CLOSE';
   if (/who (said|authorized)|source|basis|provenance|came from/.test(t)) return 'TRACE';
   if (/where|when|scope|jurisdiction|limit|boundary/.test(t)) return 'BOUND';
   if (/what changes|trigger|becomes|state/.test(t)) return 'TRIGGER';
+  if (/repair|restore|restored|fix|invalid|breach|failed|rejected/.test(t)) return 'REPAIR';
   if (/except|exception|override|unless/.test(t)) return 'EXCEPTION';
   if (/still true|recheck|refresh|change indicator/.test(t)) return 'SIGNPOST';
   if (/label|called|manager|owner|lead|handles/.test(t)) return 'DEFINE_BY_FUNCTION';
@@ -90,6 +93,7 @@ export function renderOperatorQuestion(candidate, plan = selectQuestionOperator(
     case 'BOUND': q = `Where does this apply, and where does it stop? Please bound ${reason} by the relevant person, object, place, time, condition, or jurisdiction.`; break;
     case 'TRIGGER': q = `What event or condition changes this state, and what becomes possible, required, or prohibited immediately afterward? ${reason}`; break;
     case 'EXCEPTION': q = `When does this rule not apply, change, or allow an override? ${reason} What happens instead in that case?`; break;
+    case 'REPAIR': q = `When this fails, becomes invalid, is rejected, or otherwise falls out of the intended state, what happens next? Who may repair it, and what tells you it has actually been restored? ${reason}`; break;
     case 'COUNTERFACTUAL': q = `What would have to be observed for this interpretation to be wrong: ${reason}`; break;
     case 'SIGNPOST': q = `What observable event or condition would tell Atlas that this is no longer true and needs to be checked again: ${reason}`; break;
     case 'CLOSE': q = `For ${s}, which is true now: all materially relevant members are accounted for, there are none, it does not apply, it is known incomplete, or it is still unresolved?`; break;

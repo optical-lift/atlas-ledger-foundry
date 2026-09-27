@@ -2,6 +2,7 @@
 // Pure, storage-free reference logic. No database access and no Atlas Reality writes.
 
 import { buildQuestionPlan } from './question-operators.mjs';
+import { validateDiscoveryGap } from './discovery-grammar.mjs';
 
 const MATERIALITY = { LOW: 5, MEDIUM: 20, HIGH: 50, CRITICAL: 80 };
 const PRIORITY_BASE = { P0: 1000, P1: 900, P2: 800, P3: 700, P4: 600, P5: 500, P6: 400, P7: 300 };
@@ -29,6 +30,7 @@ function inferUnknownType(u) {
   if (k === 'scope') return 'boundary';
   if (k === 'trigger') return 'transition';
   if (k === 'exception') return 'exception';
+  if (k === 'repair') return 'repair';
   if (k === 'assumption') return 'counterfactual';
   if (k === 'refresh') return 'signpost';
   return 'unknown';
@@ -40,6 +42,7 @@ function inferAssertionType(a) {
   if (q.needs_scope || q.uncertainty_kind === 'scope') return 'boundary';
   if (q.needs_trigger || q.uncertainty_kind === 'trigger') return 'transition';
   if (q.needs_exception || q.uncertainty_kind === 'exception') return 'exception';
+  if (q.needs_repair || q.uncertainty_kind === 'repair') return 'repair';
   if (q.needs_signpost || q.uncertainty_kind === 'refresh') return 'signpost';
   if (q.needs_confirmation || q.uncertainty_kind === 'confirmation') return 'verification';
   if (/authority|responsib|custody|jurisdiction|permission/.test(k)) return 'authority';
@@ -50,6 +53,24 @@ function inferAssertionType(a) {
 
 export function collectQuestionCandidates(workspace) {
   const out = [];
+
+  for (const g of workspace.discovery_gaps ?? []) {
+    if (g.status === 'RESOLVED' || g.status === 'CLOSED') continue;
+    const check = validateDiscoveryGap(g);
+    if (!check.valid) continue;
+    out.push(ref(g.id,g.type ?? 'unknown',g.reason,g.priorityClass ?? 'P7',{
+      blocking:!!g.blocking,
+      materiality:g.materiality ?? 'MEDIUM',
+      subject_label:g.subject_label ?? null,
+      uncertainty_kind:g.uncertainty_kind ?? null,
+      operator_hint:g.operator_hint ?? null,
+      related_refs:[...(g.related_refs ?? g.supporting_refs ?? []),...(g.cluster_refs ?? [])],
+      discovery_lens:g.discovery_lens,
+      supporting_refs:g.supporting_refs ?? [],
+      cluster_refs:g.cluster_refs ?? [],
+      industry_assumption:false
+    }));
+  }
 
   for (const a of workspace.assertions ?? []) {
     if (a.stage === 'ESTABLISHED' && ['HIGH','CRITICAL'].includes(a.materiality) && assertionBasis(a).length === 0) {
@@ -94,8 +115,8 @@ export function collectQuestionCandidates(workspace) {
   for (const a of workspace.assertions ?? []) {
     const q = inquiry(a);
     if (a.stage === 'NEEDS_CLARIFICATION' || a.stage === 'CONFLICTED' || (a.stage === 'CANDIDATE' && q.needs_confirmation)) {
-      const type = inferAssertionType(a); const authority = type === 'authority'; const identity = type === 'identity'; const transition = ['transition','exception'].includes(type);
-      out.push(ref(a.assertion_id,type,assertionNote(a) ?? `Clarify ${a.assertion_kind ?? a.predicate ?? 'assertion'}.`,authority||identity?'P3':transition?'P4':type==='boundary'||type==='verification'||type==='function'?'P3':'P7',{blocking:a.stage==='CONFLICTED',materiality:a.materiality ?? 'HIGH',kind:assertionKind(a),subject_label:a.subject_label ?? a.subject_ref ?? null,uncertainty_kind:q.uncertainty_kind ?? null,operator_hint:q.operator_hint ?? null,needs_function_definition:!!q.needs_function_definition,needs_scope:!!q.needs_scope,needs_trigger:!!q.needs_trigger,needs_exception:!!q.needs_exception,needs_confirmation:!!q.needs_confirmation,evidence_standard:q.evidence_standard ?? null,related_refs:assertionBasis(a)}));
+      const type = inferAssertionType(a); const authority = type === 'authority'; const identity = type === 'identity'; const transition = ['transition','exception','repair'].includes(type);
+      out.push(ref(a.assertion_id,type,assertionNote(a) ?? `Clarify ${a.assertion_kind ?? a.predicate ?? 'assertion'}.`,authority||identity?'P3':transition?'P4':type==='boundary'||type==='verification'||type==='function'?'P3':'P7',{blocking:a.stage==='CONFLICTED',materiality:a.materiality ?? 'HIGH',kind:assertionKind(a),subject_label:a.subject_label ?? a.subject_ref ?? null,uncertainty_kind:q.uncertainty_kind ?? null,operator_hint:q.operator_hint ?? null,needs_function_definition:!!q.needs_function_definition,needs_scope:!!q.needs_scope,needs_trigger:!!q.needs_trigger,needs_exception:!!q.needs_exception,needs_repair:!!q.needs_repair,needs_confirmation:!!q.needs_confirmation,evidence_standard:q.evidence_standard ?? null,related_refs:assertionBasis(a)}));
     }
     if (a.stage === 'ESTABLISHED' && q.needs_signpost === true) {
       out.push(ref(a.assertion_id,'signpost',assertionNote(a) ?? `Established claim ${a.assertion_id} needs an observable refresh trigger.`,'P6',{blocking:false,materiality:a.materiality ?? 'MEDIUM',kind:assertionKind(a),subject_label:a.subject_label ?? a.subject_ref ?? null,needs_signpost:true,related_refs:assertionBasis(a)}));
@@ -125,13 +146,29 @@ export function collectQuestionCandidates(workspace) {
 
 export function scoreQuestionCandidate(c) {
   let score = PRIORITY_BASE[c.priorityClass] ?? 0; if (c.blocking) score += 100; score += MATERIALITY[c.materiality] ?? 0;
-  if (c.type === 'topology') score += 45; if (c.type === 'authority'||c.type==='identity') score += 40; if (c.type==='transition'||c.type==='exception') score += 35;
+  if (c.type === 'topology') score += 45; if (c.type === 'authority'||c.type==='identity') score += 40; if (c.type==='transition'||c.type==='exception'||c.type==='repair') score += 35;
   if (c.type==='closure'||c.type==='completeness') score += 30; if (c.type==='counterfactual') score += 25; if (c.type==='provenance') score += 20; return score;
 }
 
 function questionProjection(c) {
   const plan = buildQuestionPlan(c);
-  return {question:plan.question,reason:c.reason,priority_class:c.priorityClass,score:c.score,related_refs:[c.id,...(c.related_refs ?? [])],expected_structural_gain:plan.expected_structural_gain,operator:plan.operator,operator_modifiers:plan.modifiers,wrapped_operator:plan.wrapped_operator,operator_reason:plan.operator_reason,next_operator_candidates:plan.next_operators};
+  return {
+    question:plan.question,
+    reason:c.reason,
+    priority_class:c.priorityClass,
+    score:c.score,
+    related_refs:[c.id,...(c.related_refs ?? [])],
+    expected_structural_gain:plan.expected_structural_gain,
+    operator:plan.operator,
+    operator_modifiers:plan.modifiers,
+    wrapped_operator:plan.wrapped_operator,
+    operator_reason:plan.operator_reason,
+    next_operator_candidates:plan.next_operators,
+    discovery_lens:c.discovery_lens ?? null,
+    supporting_refs:c.supporting_refs ?? [],
+    cluster_refs:c.cluster_refs ?? [],
+    industry_assumption:c.discovery_lens ? false : null
+  };
 }
 
 export function selectNextQuestion(workspace) {
@@ -150,6 +187,12 @@ export function runReadinessCheck(workspace) {
     const state=closureState(c), material=closureMaterial(c);
     if (['KNOWN_INCOMPLETE','UNRESOLVED','NOT_YET_RECONCILED'].includes(state)&&(material||c.blocking===true)) blockers.push(blocker('MATERIAL_CLOSURE_OPEN',`${closureLabel(c)} is not closed.`,[c.closure_id]));
     if (closureCollection(c)&&state==='CLOSED_COMPLETE'&&material&&inverseChecked(c)!==true) blockers.push(blocker('COMPLETENESS_NOT_INVERTED',`${closureLabel(c)} was closed without a reality-to-record completeness check.`,[c.closure_id]));
+  }
+
+  for (const g of workspace.discovery_gaps ?? []) {
+    if (g.status === 'RESOLVED' || g.status === 'CLOSED') continue;
+    const check=validateDiscoveryGap(g);
+    if (!check.valid) blockers.push(blocker('INVALID_DISCOVERY_GAP',check.errors.join('; '),[g.id].filter(Boolean)));
   }
 
   for (const u of workspace.unknowns ?? []) { if (u.status!=='OPEN') continue; if (u.blocking) blockers.push(blocker('BLOCKING_UNKNOWN',u.description,[u.unknown_id])); else nonBlockingUnknowns.push({unknown_id:u.unknown_id,description:u.description,materiality:u.materiality}); }

@@ -1,0 +1,49 @@
+{
+  "schema": "atlas-foundry-canon-discovery-lenses-v0.1",
+  "status": "governing-machine-readable",
+  "premise": "Canon-derived functional discovery lenses generate candidate structural gaps. They do not establish facts.",
+  "industry_rule": {
+    "industry_assumption_default": false,
+    "allowed_uses": [
+      "vocabulary_context",
+      "source_system_suggestion",
+      "ordinary_language_phrasing"
+    ],
+    "forbidden_uses": [
+      "ontology_creation",
+      "role_authority_inference",
+      "workflow_inference",
+      "collection_completeness",
+      "ledger_boundary_inference"
+    ]
+  },
+  "lenses": [
+    {"name":"FUNCTION","question_job":"Discover what the thing actually does or changes.","default_operator":"DEFINE_BY_FUNCTION","priority_hint":"P3"},
+    {"name":"SOURCE","question_job":"Discover where authority, instruction, truth, provision, or governing order originates.","default_operator":"TRACE","priority_hint":"P3"},
+    {"name":"CARRIER","question_job":"Discover who or what bears, transmits, represents, or executes received responsibility or authority.","default_operator":"TRACE","priority_hint":"P3"},
+    {"name":"BOUNDARY","question_job":"Discover where a role, rule, authority, domain, claim, object, or responsibility starts and stops.","default_operator":"BOUND","priority_hint":"P3"},
+    {"name":"STATE","question_job":"Discover the material condition before or after an event or operation.","default_operator":"TRIGGER","priority_hint":"P4"},
+    {"name":"TRIGGER","question_job":"Discover the event or condition that changes state, responsibility, permission, custody, or obligation.","default_operator":"TRIGGER","priority_hint":"P4"},
+    {"name":"CUSTODY","question_job":"Discover what entrusted thing or condition must be guarded, preserved, transferred, or accounted for.","default_operator":"TRACE","priority_hint":"P3"},
+    {"name":"ACCESS","question_job":"Discover who may approach, enter, see, receive, touch, change, approve, use, or remain.","default_operator":"BOUND","priority_hint":"P3"},
+    {"name":"PREPARATION","question_job":"Discover what must be ready or fit before participation or execution.","default_operator":"GATE","priority_hint":"P4"},
+    {"name":"INTAKE","question_job":"Discover what enters the field, from where, through what boundary, and what reception changes.","default_operator":"TRACE","priority_hint":"P4"},
+    {"name":"OUTCOME","question_job":"Discover the observable fruit or resulting condition showing function fulfillment.","default_operator":"VERIFY","priority_hint":"P4"},
+    {"name":"BREACH","question_job":"Discover the observable condition constituting failure, disorder, invalidation, rejection, damage, or loss of fitness.","default_operator":"DISCRIMINATE","priority_hint":"P4"},
+    {"name":"REPAIR","question_job":"Discover restoration after breach, including authorized repair and restored-state test.","default_operator":"REPAIR","priority_hint":"P4"},
+    {"name":"TIME","question_job":"Discover timing, window, cadence, readiness, expiration, waiting, or fixed-time governance.","default_operator":"BOUND","priority_hint":"P4"},
+    {"name":"CONTINUITY","question_job":"Discover what persists across changes of bearer, state, representation, or time.","default_operator":"DISCRIMINATE","priority_hint":"P3"},
+    {"name":"EXCEPTION","question_job":"Discover when the ordinary rule changes, ceases to apply, or permits a governed override.","default_operator":"EXCEPTION","priority_hint":"P4"}
+  ],
+  "candidate_contract": {
+    "required": ["id","reason","discovery_lens","supporting_refs","industry_assumption"],
+    "industry_assumption_must_equal": false,
+    "optional": ["cluster_refs","subject_label","materiality","blocking","operator_hint","uncertainty_kind"]
+  },
+  "cluster_examples": [
+    {"members":["ACCESS","PREPARATION","CUSTODY","BOUNDARY"],"candidate_structure":"threshold_governance"},
+    {"members":["SOURCE","CARRIER","CUSTODY","OUTCOME"],"candidate_structure":"delegated_or_transmitted_function"},
+    {"members":["STATE","TRIGGER","EXCEPTION","REPAIR"],"candidate_structure":"operating_law"},
+    {"members":["CUSTODY","BREACH","REPAIR","OUTCOME"],"candidate_structure":"entrusted_state_restoration"}
+  ]
+}

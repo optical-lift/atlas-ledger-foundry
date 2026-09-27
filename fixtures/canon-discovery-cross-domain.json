@@ -1,0 +1,40 @@
+{
+  "fixture": "canon-discovery-cross-domain-v0.1",
+  "purpose": "Different industry labels with the same preserved functional structure must generate the same governing discovery signatures.",
+  "cases": [
+    {
+      "case_id": "FLOWER-FARM",
+      "declared_industry": "flower farm",
+      "testimony": [
+        {"testimony_id":"TF1","content":"Once the beds are ready, the field lead takes over the planting work."},
+        {"testimony_id":"TF2","content":"If the request is above the normal spend limit, the owner has to approve it."},
+        {"testimony_id":"TF3","content":"If planting fails inspection, the field lead fixes it and it is checked again before the bed is released."}
+      ],
+      "observations": [
+        {"observation_id":"F-O1","discovery_lens":"CUSTODY","subject_label":"planting responsibility","description":"Responsibility moves to an execution bearer after a readiness condition.","supporting_refs":["TF1"],"industry_assumption":false,"materiality":"HIGH"},
+        {"observation_id":"F-O2","discovery_lens":"BOUNDARY","subject_label":"approval authority","description":"Approval authority changes at a threshold.","supporting_refs":["TF2"],"industry_assumption":false,"materiality":"HIGH"},
+        {"observation_id":"F-O3","discovery_lens":"REPAIR","subject_label":"failed execution","description":"A failed state has an authorized repair and restored-state verification.","supporting_refs":["TF3"],"industry_assumption":false,"materiality":"HIGH"}
+      ]
+    },
+    {
+      "case_id": "SOFTWARE-SERVICE",
+      "declared_industry": "software service",
+      "testimony": [
+        {"testimony_id":"TS1","content":"Once the environment is ready, the implementation lead takes over the deployment work."},
+        {"testimony_id":"TS2","content":"If the request is above the normal spend limit, the owner has to approve it."},
+        {"testimony_id":"TS3","content":"If deployment fails validation, the implementation lead fixes it and it is checked again before release."}
+      ],
+      "observations": [
+        {"observation_id":"S-O1","discovery_lens":"CUSTODY","subject_label":"deployment responsibility","description":"Responsibility moves to an execution bearer after a readiness condition.","supporting_refs":["TS1"],"industry_assumption":false,"materiality":"HIGH"},
+        {"observation_id":"S-O2","discovery_lens":"BOUNDARY","subject_label":"approval authority","description":"Approval authority changes at a threshold.","supporting_refs":["TS2"],"industry_assumption":false,"materiality":"HIGH"},
+        {"observation_id":"S-O3","discovery_lens":"REPAIR","subject_label":"failed execution","description":"A failed state has an authorized repair and restored-state verification.","supporting_refs":["TS3"],"industry_assumption":false,"materiality":"HIGH"}
+      ]
+    }
+  ],
+  "expected": {
+    "lens_sequence": ["CUSTODY","BOUNDARY","REPAIR"],
+    "operator_sequence": ["TRACE","BOUND","REPAIR"],
+    "industry_assumption": false,
+    "cross_domain_signatures_equal": true
+  }
+}

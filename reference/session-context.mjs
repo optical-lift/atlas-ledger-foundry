@@ -5,12 +5,16 @@ import { selectNextQuestion, runReadinessCheck } from './foundry-engines.mjs';
 
 const CORE_RULES = [
   'Function before inherited label.',
+  'Canon governs discovery method; testimony governs what is present.',
+  'Industry label is context, not ontology authority.',
+  'Every Canon Discovery gap must cite preserved supporting evidence.',
   'Source is not carrier.',
   'Evidence, interpretation, and reality are distinct.',
   'Role is not bearer.',
   'Access or capability is not authority.',
   'State is not event.',
   'Operation is not outcome.',
+  'Exception is not repair.',
   'Possibility, permission, requirement, expectation, and occurrence are distinct.',
   'Unknown is not none.',
   'Similarity is not identity.',
@@ -20,12 +24,14 @@ const CORE_RULES = [
 ];
 
 function stableId(record) {
-  return record?.assertion_id ?? record?.testimony_id ?? record?.source_id ?? record?.unknown_id ?? record?.contradiction_id ?? record?.closure_id ?? record?.ledger_candidate_id ?? record?.case_id ?? null;
+  return record?.assertion_id ?? record?.testimony_id ?? record?.source_id ?? record?.unknown_id ?? record?.contradiction_id ?? record?.closure_id ?? record?.ledger_candidate_id ?? record?.case_id ?? record?.id ?? null;
 }
 
 function recordBasisRefs(record) {
   return [...new Set([
     ...(record?.basis_refs ?? []),
+    ...(record?.supporting_refs ?? []),
+    ...(record?.cluster_refs ?? []),
     ...(record?.provenance?.basis_refs ?? []),
     ...(record?.record_refs ?? []),
     ...(record?.source_refs ?? []),
@@ -42,6 +48,7 @@ export function collectRelevantRecords(workspace, relatedRefs = []) {
   const collections = [
     ...(workspace.sources ?? []),
     ...(workspace.testimony ?? []),
+    ...(workspace.discovery_gaps ?? []),
     ...(workspace.assertions ?? []),
     ...(workspace.unknowns ?? []),
     ...(workspace.contradictions ?? []),
@@ -83,6 +90,7 @@ export function buildSessionContext(workspace, options = {}) {
   const unresolvedProjection = neighborhood.filter(r => {
     const closureState = r.state ?? r.status;
     if (closureState === 'OPEN' || closureState === 'UNRESOLVED' || closureState === 'KNOWN_INCOMPLETE' || closureState === 'NOT_YET_RECONCILED') return true;
+    if (r.discovery_lens && closureState !== 'RESOLVED' && closureState !== 'CLOSED') return true;
     if (r.stage === 'NEEDS_CLARIFICATION' || r.stage === 'CONFLICTED') return true;
     return false;
   });
@@ -117,6 +125,7 @@ export function buildSessionContext(workspace, options = {}) {
       'get_relevant_evidence',
       'get_governing_rule',
       'record_testimony',
+      'submit_discovery_observations',
       'submit_candidate_assertions',
       'record_unknown',
       'record_contradiction',

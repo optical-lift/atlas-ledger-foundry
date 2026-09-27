@@ -7,6 +7,8 @@ Foundry does not ask questions in questionnaire order. It selects the next quest
 
 The service must prefer the question that most reduces material uncertainty, resolves a blocking conflict, closes a material collection, clarifies authority, distinguishes standing law from current position, or determines a Ledger boundary.
 
+Question Selection answers **which gap matters next**. The Question Operator layer answers **what kind of question should be used to resolve that gap**. See [`QUESTION_OPERATORS_V0.1.md`](QUESTION_OPERATORS_V0.1.md).
+
 ## 1. Governing principle
 
 A good Foundry question changes the model of reality.
@@ -15,6 +17,10 @@ A bad Foundry question merely gathers more description.
 
 Question selection must therefore optimize for **structural gain**, not conversational variety, completion percentage, or topic coverage for its own sake.
 
+The inquiry loop is:
+
+`candidate gaps → priority ranking → operator selection → evidence neighborhood → one ordinary-language question → preserved testimony → residual gap`
+
 ## 2. Candidate question sources
 
 Question candidates may be generated from:
@@ -22,14 +28,18 @@ Question candidates may be generated from:
 - open blocking contradictions;
 - blocking or high-materiality unknowns;
 - assertions marked `NEEDS_CLARIFICATION` or `CONFLICTED`;
+- candidate assertions requiring governed verification;
 - unresolved identity/continuity distinctions;
 - unresolved authority/responsibility distinctions;
 - unresolved Ledger candidates;
 - closure records that are `KNOWN_INCOMPLETE`, `UNRESOLVED`, or `NOT_YET_RECONCILED`;
+- material collections not yet checked in the reality-to-record direction;
 - current-state assertions whose as-of basis is stale or absent;
 - standing-law assertions that lack transition, condition, exception, or consequence semantics;
+- established material assertions that need a future change signpost;
 - acceptance failures or unresolved acceptance cases;
-- missing provenance on material established assertions.
+- missing provenance on material established assertions;
+- a newly opened field that has not yet yielded enough structure for narrower questions.
 
 ## 3. Priority classes
 
@@ -55,17 +65,17 @@ Questions that distinguish who may observe, act, decide, commit, verify, overrid
 
 Questions that establish what event changes state, under what conditions, with what exception, and what becomes possible or required afterward.
 
-### P5 — Closure
+### P5 — Closure and completeness
 
-Questions that close material collections or domains and distinguish `none` from `not yet known`.
+Questions that test silent omissions, close material collections or domains, and distinguish `none` from `not yet known`.
 
-### P6 — Current position
+### P6 — Current position and maintenance triggers
 
-Questions that establish what is true now when the current condition affects decisions.
+Questions that establish what is true now or what future observable event should cause a material current assertion to be re-evaluated.
 
-### P7 — Refinement
+### P7 — Refinement / initial discovery
 
-Useful but non-blocking clarification, naming, description, or historical detail.
+Useful but non-blocking clarification, naming, description, low-materiality history, or open narration needed to form the first candidate map.
 
 ## 4. Deterministic ranking
 
@@ -80,7 +90,7 @@ Recommended within-class components:
 - `authority`: +40
 - `identity/continuity`: +40
 - `transition/law`: +35
-- `closure`: +30
+- `closure/completeness`: +30
 - `current position`: +25
 - `acceptance failure`: +25
 - `missing provenance`: +20
@@ -92,29 +102,57 @@ The implementation may encode priority class as non-overlapping numeric bands, b
 
 Identical workspace inputs should produce identical rankings.
 
-## 5. Question construction rules
+## 5. Question-operator selection
 
-The selected question must:
+After the highest-value gap is selected, Foundry selects a Question Operator from the governing operator library.
 
-- be asked in ordinary language;
-- ask one material distinction at a time unless the distinctions are inseparable;
-- preserve the exact unresolved structure in its rationale;
-- identify the records whose interpretation depends on the answer;
-- avoid presupposing the answer;
-- avoid forcing the human into Atlas vocabulary;
-- avoid asking for information already preserved and sufficiently established.
+Examples:
 
-Bad:
+- new under-modeled field → `NARRATE`;
+- branch applicability → `GATE`;
+- competing interpretations / Ledger topology → `DISCRIMINATE`;
+- missing source or authority lineage → `TRACE`;
+- possible silent collection omissions → `INVERT`;
+- candidate confirmation → `VERIFY`;
+- ambiguous inherited label → `DEFINE_BY_FUNCTION`;
+- unclear scope/jurisdiction → `BOUND`;
+- state change → `TRIGGER`;
+- rule non-universality → `EXCEPTION`;
+- pressure-test assumption → `COUNTERFACTUAL`;
+- future re-evaluation trigger → `SIGNPOST`;
+- negative-space accounting → `CLOSE`;
+- high-consequence evidence risk → `ESCALATE` or an `ESCALATE` modifier around the core operator.
 
-> Is Ricardo the Argentina approval authority?
+Operator selection does not alter the gap's priority class.
 
-Better:
+## 6. Mandatory shortcuts
 
-> When Ricardo approves a receiving church in Argentina, is he making that decision under his own standing authority, or is he acting on authority delegated by David for that situation?
+### Narrative before normalization
 
-The second question distinguishes bearer, source, scope, and condition.
+A new under-modeled field begins with open narration only long enough to discover its own structure. Foundry then moves to narrower operators rather than repeatedly asking broad descriptive questions.
 
-## 6. Evidence-before-question rule
+### Gate before branch
+
+When one answer can determine whether an entire family of questions applies, ask the gate first.
+
+### Audit in both directions
+
+For material collections, distinguish:
+
+- `represented record → reality` (existence / accuracy);
+- `reality → represented record` (completeness).
+
+Validating every represented member does not establish that no material members are missing.
+
+### Discriminate rather than accumulate
+
+When two or more models fit the evidence, ask where those models predict different observable answers. Avoid undirected "tell me more" questions when a discriminator exists.
+
+### Learn the refresh trigger
+
+When a material fact is established and change can be observed, ask what future event or condition should cause re-evaluation instead of scheduling unnecessary periodic re-onboarding.
+
+## 7. Evidence-before-question rule
 
 Before asking a human, Foundry should check whether the workspace already contains sufficient evidence to resolve or narrow the question.
 
@@ -122,7 +160,22 @@ If existing evidence answers the question, reconcile from the evidence or ask on
 
 Foundry must not repeatedly ask humans to restate data already preserved merely because a new AI session lacks conversational memory.
 
-## 7. Question bundles
+## 8. Question construction rules
+
+The selected question must:
+
+- be asked in ordinary language;
+- preserve the selected operator's semantic job;
+- ask one material distinction at a time unless the distinctions are inseparable;
+- preserve the exact unresolved structure in its rationale;
+- identify the records whose interpretation depends on the answer;
+- avoid presupposing the answer;
+- avoid forcing the human into Atlas vocabulary;
+- avoid asking for information already preserved and sufficiently established.
+
+A carrier may phrase the question naturally, but it may not change the semantic distinction being tested.
+
+## 9. Question bundles
 
 `get_next_question` should normally return:
 
@@ -131,11 +184,12 @@ Foundry must not repeatedly ask humans to restate data already preserved merely 
 - priority class;
 - related record IDs;
 - expected structural gain;
+- selected operator;
+- operator rationale;
+- any operator modifier such as `ESCALATE`;
 - up to two alternates when the primary cannot currently be answered.
 
-A carrier may phrase the question naturally, but it may not change the semantic distinction being tested.
-
-## 8. Stopping condition
+## 10. Stopping condition
 
 The engine may return `NO_MATERIAL_QUESTION` only when:
 
@@ -148,10 +202,14 @@ The engine may return `NO_MATERIAL_QUESTION` only when:
 
 `NO_MATERIAL_QUESTION` is not equivalent to `READY_TO_SEAL`.
 
-## 9. Auditability
+## 11. Auditability
 
 For every selected question, the service should be able to show:
 
-`workspace state → candidate gaps → ranking → selected question`
+`workspace state → candidate gaps → priority ranking → selected gap → operator → evidence neighborhood → question`
+
+After the answer it should be able to show:
+
+`question → testimony → bounded operations → residual gap / next operator`
 
 Question choice must be inspectable rather than hidden inside model intuition.

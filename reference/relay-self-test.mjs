@@ -136,7 +136,7 @@ const checkpointRelay = createMockRelay({
   status: 'DISCOVERY',
   boundary_status: 'PROVISIONAL',
   provisional_field: 'existing checkpoint'
-}, { relay_id: 'R-CHECKPOINT' });
+}, { relay_id: 'R-CHECKPOINT', sequence: 2 });
 
 assert.equal(checkpointRelay.sequence, 7);
 const checkpointTurn = processRelayTurn(checkpointRelay, {
@@ -145,6 +145,69 @@ const checkpointTurn = processRelayTurn(checkpointRelay, {
   human_input: 'Continue from the existing checkpoint.'
 }, { now: '2026-09-27T20:01:50Z' });
 assert.equal(checkpointTurn.receipt.resulting_workspace_version, 'relay-8');
+
+// Cluster refs may point to preserved evidence or discovery observations, including observations in the same batch.
+const clusterBase = createMockRelay({
+  workspace_id: 'W-CLUSTER',
+  protocol_version: '0.1',
+  status: 'DISCOVERY',
+  boundary_status: 'PROVISIONAL',
+  provisional_field: 'generic operating field'
+}, { relay_id: 'R-CLUSTER' });
+
+const clusterTurn = processRelayTurn(clusterBase, {
+  turn_id: '201',
+  human_input: 'If the item fails inspection, it is corrected and checked again before release.',
+  discovery_observations: [
+    {
+      observation_id: 'O-STATE-C',
+      discovery_lens: 'STATE',
+      subject_label: 'inspection state',
+      description: 'Testimony distinguishes a failed state from a releasable state.',
+      supporting_refs: ['$turn_testimony'],
+      industry_assumption: false,
+      materiality: 'LOW'
+    },
+    {
+      observation_id: 'O-REPAIR-C',
+      discovery_lens: 'REPAIR',
+      subject_label: 'failed inspection',
+      description: 'A failed state is corrected and re-verified before release.',
+      supporting_refs: ['$turn_testimony'],
+      cluster_refs: ['O-STATE-C'],
+      industry_assumption: false,
+      materiality: 'HIGH',
+      blocking: true
+    }
+  ]
+}, { now: '2026-09-27T20:01:55Z' });
+
+assert.equal(clusterTurn.receipt.discovery.status, 'ACCEPTED');
+assert.equal(clusterTurn.receipt.next_question.operator, 'REPAIR');
+assert.ok(clusterTurn.receipt.next_question.cluster_refs.includes('O-STATE-C'));
+
+const clusterResume = resumeRelay(clusterTurn.relay, { session_id: 'SESSION-CLUSTER' });
+assert.ok(clusterResume.unresolved_projection.some(r => r.observation_id === 'O-STATE-C'));
+assert.ok(clusterResume.evidence_refs.includes('T-201'));
+assert.ok(!clusterResume.evidence_refs.includes('O-STATE-C'));
+
+const badCluster = processRelayTurn(clusterTurn.relay, {
+  turn_id: '202',
+  human_input: 'There is another related condition.',
+  discovery_observations: [{
+    observation_id: 'O-BAD-CLUSTER',
+    discovery_lens: 'REPAIR',
+    description: 'Attempts to cite a nonexistent cluster member.',
+    supporting_refs: ['$turn_testimony'],
+    cluster_refs: ['O-NOT-THERE'],
+    industry_assumption: false
+  }]
+}, { now: '2026-09-27T20:01:56Z' });
+
+assert.equal(badCluster.receipt.testimony_preserved, true);
+assert.equal(badCluster.receipt.discovery.status, 'REJECTED');
+assert.ok(badCluster.receipt.discovery.errors.some(e => /cluster_refs must resolve/i.test(e)));
+assert.ok(!badCluster.relay.workspace.discovery_observations.some(o => o.observation_id === 'O-BAD-CLUSTER'));
 
 // AI may propose a truth-changing authority interpretation, but Relay must leave it for confirmation.
 const authorityBase = createMockRelay({

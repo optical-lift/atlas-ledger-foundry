@@ -11,6 +11,8 @@ It is not the production Foundry Service. It exists so governing behavior can be
 - `discovery-grammar.mjs` — validation and candidate generation for evidence-backed canon discovery observations.
 - `answer-processing.mjs` — cases, interpretation validation, conservative-vs-truth-changing adjudication gates, dependency impact, and structural-delta construction.
 - `session-context.mjs` — bounded resume-packet projection for a fresh carrier.
+- `connected-authority.mjs` — pre-Ledger operation-admission reference against server-verified actor, subject-scope and delegated-carrier facts; **not** an HTTP authorization service.
+- `connected-authority-self-test.mjs` — allowlist, scope, identity-spoof, expiry, revocation, legacy and third-party custody negative checks.
 - `mock-relay.mjs` — in-memory orchestration of resume, testimony custody, Canon Discovery, answer adjudication, structural delta, and fresh-session continuation.
 - `self-test.mjs` — priority and readiness checks.
 - `operator-self-test.mjs` — every question operator plus bidirectional completeness, repair, and signpost behavior.
@@ -30,6 +32,7 @@ node reference/discovery-self-test.mjs
 node reference/answer-self-test.mjs
 node reference/session-self-test.mjs
 node reference/relay-self-test.mjs
+node --test reference/connected-authority-self-test.mjs
 ```
 
 No database, network access, package install, or Atlas credentials are required.

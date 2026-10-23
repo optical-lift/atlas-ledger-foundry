@@ -28,6 +28,19 @@ This is the mandatory contract gate before building the public API/MCP adapter. 
 9. Foundry's storage-free reference engines, answer-processing, question-selection, session-context, and Mock Relay are available and must not be reimplemented inside MCP.
 10. Existing Atlas Implementation Reality Candidate and first-day Reality Discovery systems do not automatically create a Foundry workspace. They remain distinct evidence/admission systems.
 
+
+## Existing workspace compatibility discovery (direct SQL, no mutation)
+
+A deeper read-only compatibility inventory found **five historical workspace streams** containing **93 events and five snapshots**. The recorded events date from 2026-09-27 through 2026-10-15. These are prior work and must never be replaced with an empty new registry.
+
+- All five event streams have contiguous sequences beginning at 1; all five have snapshots.
+- **20 events** do not carry the current `append_event` envelope requirements (`actor_kind`, `authority`, `basis_refs`, `payload`, and matching envelope `event_id`). Their custody remains historical evidence; do not fabricate metadata or silently recast them as new protocol v0.1 events.
+- One stored snapshot is **behind** its event stream. Reading the snapshot alone would omit later evidence. After safe compatibility adjudication, projection must replay verified trailing events or fail closed, never imply the stale snapshot is current.
+- Snapshot workspace-status strings include `DISCOVERY_OPEN` and `OPEN_COLLECTION_ONLY` as well as `DISCOVERY`. The current Foundry schema admits `DISCOVERY` but not those two strings. Do not silently remap them into new lifecycle decisions.
+- These facts prove a versioned **historical compatibility membrane** is needed before resume of existing streams. New connected workspaces may require strict current envelopes from creation, while older streams are explicitly read as legacy/unreconciled until a governed preservation/reconciliation contract is accepted.
+
+**Acceptance extension:** A fresh carrier may never see a legacy stream as an empty or newly created workspace merely because the connected reducer cannot parse older records. Return a bounded `legacy_needs_reconciliation` disposition with stable existing refs. No rewrite/retirement/merge of historical material is authorized by Gate 0.
+
 ## Critical authority question (requires implementation disposition before schema)
 
 The existing Foundry v0.1 operation envelope contains `principal_id`, but a pre-Atlas external subject may not possess an Atlas Principal or Auth account. Do **not** quietly reinterpret `principal_id` as any one of these:
